@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "cockroachdb"
+}
+
+model User {
+  id        String   @id
+  email     String   @unique
+  name      String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  materials Material[]
+  sessions  StudySession[]
+}
+
+model Material {
+  id         String   @id @default(cuid())
+  title      String
+  fileUrl    String
+  fileType   String
+  uploadedAt DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessions StudySession[]
+}
+
+model StudySession {
+  id        String   @id @default(cuid())
+  title     String
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  materialId String?
+  material   Material? @relation(fields: [materialId], references: [id], onDelete: SetNull)
+}

@@ -146,14 +146,54 @@
   }
 
   .cl-rootBox {
-    @apply !border-0 !outline-none;
+    @apply !border-0 !outline-none !h-full !bg-transparent !backdrop-blur-md;
+  }
+  .cl-signUp-root {
+    @apply !border-0 !outline-none !h-full !bg-transparent !backdrop-blur-md;
+  }
+  .cl-cardBox {
+    @apply !border-0 !outline-none !h-full !overflow-auto;
   }
 
   .cl-headerTitle {
-    @apply !text-2xl;
+    @apply !hidden;
+  }
+  .cl-headerSubtitle {
+    @apply !hidden;
   }
 
   .cl-formButtonPrimary {
     @apply !bg-blue-600 text-white !border-none hover:!bg-blue-700;
+  }
+
+  /* Custom Global Scrollbar */
+
+  /* 1. Width and height of the scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* 2. Track (background path) */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* 3. Thumb (draggable bar) */
+  ::-webkit-scrollbar-thumb {
+    background: #0031f4;
+    border-radius: 8px;
+  }
+
+  /* 4. Thumb on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #0f3cf2;
+  }
+
+  /* Firefox Support */
+  * {
+    scrollbar-width: thin;
+    /* Syntax: <thumb-color> <track-color> */
+    scrollbar-color: #0031f4 transparent;
   }
 }

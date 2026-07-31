@@ -6,8 +6,8 @@ import { MoveUpRight } from "lucide-react";
 
 const Hero = () => {
   return (
-    <main className="relative h-[520px] overflow-y-hidden">
-      <h1 className="absolute -top-10 left-8 z-10 font-bold text-[150px] text-center text-gray-200 flex items-center justify-center tracking-wider">
+    <main className="relative max-h-full overflow-y-hidden">
+      <h1 className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 font-bold text-6xl sm:text-8xl md:text-[120px] lg:text-[150px] text-center text-gray-200/40 tracking-wider whitespace-nowrap pointer-events-none select-none">
         STUDY BETTER
       </h1>
       <div className="relative w-11/12 mx-auto z-30 flex items-center justify-between">
