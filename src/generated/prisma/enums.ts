@@ -9,7 +9,8 @@
 * 🟢 You can import this file directly.
 */
 
+export const crdb_internal_region = {
+  aws_eu_central_1: 'aws_eu_central_1'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type crdb_internal_region = (typeof crdb_internal_region)[keyof typeof crdb_internal_region]
