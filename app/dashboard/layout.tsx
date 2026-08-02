@@ -8,7 +8,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <main>
+      <main className="w-full md:w-10/12 lg:w-9/12 mx-auto h-screen">
         <SidebarTrigger />
         {children}
       </main>

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { SignOutButton } from "@clerk/nextjs";
 import {
-  LayoutDashboard,
   BookOpen,
   FolderOpen,
   MessageSquare,
@@ -14,6 +13,7 @@ import {
   LogOut,
   ChevronUp,
   Brain,
+  CardSim,
 } from "lucide-react";
 
 import {
@@ -39,19 +39,19 @@ import Image from "next/image";
 
 const mainNavItems = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
     title: "Study",
-    url: "/study",
+    url: "/dashboard",
     icon: BookOpen,
   },
   {
     title: "Library",
     url: "/library",
     icon: FolderOpen,
+  },
+  {
+    title: "Cards",
+    url: "/cards",
+    icon: CardSim,
   },
   {
     title: "Sessions",
