@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import PdfViewer from "./PdfViewer";
 
 const UploadFile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,13 +75,25 @@ const UploadFile = () => {
         throw new Error("Failed to upload file");
       }
 
+      const viewRes = await fetch("/api/files/view", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ key }),
+      });
+
+      const { fileUrl } = await viewRes.json();
+
+      console.log({ fileUrl });
+
       console.log("Upload successful");
       console.log("S3 Key:", key);
       setUploadedFile({
         key,
         fileName: file.name,
         fileType: file.type,
-        fileUrl: uploadUrl,
+        fileUrl,
       });
 
       // Later:
@@ -99,6 +112,11 @@ const UploadFile = () => {
   const cancelFile = () => {
     setUploadedFile(null);
   };
+
+  if (uploadedFile && uploadedFile.fileUrl) {
+    return <PdfViewer file={uploadedFile} />;
+  }
+
   return (
     <main className="w-full h-screen flex items-center justify-center">
       {/* <textarea
