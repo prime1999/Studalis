@@ -1,4 +1,4 @@
-import ChatInput from "./ChatInput";
+import ChatInput from "./UploadFile";
 
 const NewChat = () => {
   return (

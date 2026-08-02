@@ -1,9 +1,9 @@
-import NewChat from "@/components/dashboard/NewChat";
+import UploadFile from "@/components/dashboard/UploadFile";
 
 const page = () => {
   return (
     <main className="w-full h-screen">
-      <NewChat />
+      <UploadFile />
     </main>
   );
 };

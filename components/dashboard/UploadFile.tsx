@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Plus, ArrowUp } from "lucide-react";
+//import { Plus, ArrowUp } from "lucide-react";
+import { ArrowUp, CircleX, File, Upload } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-const ChatInput = () => {
+const UploadFile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFile, setUploadedFile] = useState<{
     key: string;
@@ -94,14 +95,22 @@ const ChatInput = () => {
       e.target.value = "";
     }
   };
+
+  const cancelFile = () => {
+    setUploadedFile(null);
+  };
   return (
-    <main className="absolute bottom-10 w-full rounded-lg">
-      <textarea
+    <main className="w-full h-screen flex items-center justify-center">
+      {/* <textarea
         placeholder="Let's start learning..."
         className="w-full h-24 p-4 font-normal text-sm text-black/90 border rounded-lg focus:outline-none"
-      />
+      /> */}
       {/* dropdown menu */}
-      <div className="flex justify-between items-center mt-2">
+      <div className="flex flex-col justify-between items-center mt-2">
+        <h3 className="text-sm text-black/80 mb-2">
+          Upload your file here to start learning with{" "}
+          <span className="font-voegies text-xl tracking-widest">Studalis</span>
+        </h3>
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
@@ -109,8 +118,8 @@ const ChatInput = () => {
                 variant="outline"
                 className="flex items-center gap-1 h-8 p-2 rounded-full cursor-pointer"
               >
-                <Plus className="h-4 w-4" />{" "}
-                <p className="text-xs">Add content</p>
+                <Upload className="h-4 w-4" />{" "}
+                <p className="text-xs">Upload content</p>
               </Button>
             }
           />
@@ -150,12 +159,30 @@ const ChatInput = () => {
           className="hidden"
           onChange={handleFileChange}
         />
-        <button className="bg-blue-500 text-white rounded-full p-2 cursor-pointer duration-500 transition hover:bg-blue-600">
-          <ArrowUp size={20} color="white" />
-        </button>
+        {/* <button className="mb-6 rounded-full bg-black p-4 text-white duration-500 transition hover:bg-black/80">
+          {" "}
+          <Upload size={30} />
+        </button> */}
+        {uploadedFile && (
+          <div className="w-full mt-4 flex items-center justify-between">
+            <div className="relative">
+              <File size={25} />
+              <button
+                onClick={() => cancelFile()}
+                className="absolute -top-2 -right-1"
+              >
+                <CircleX size={10} />
+              </button>
+              <p className="text-sm font-semibold">{uploadedFile.fileName}</p>
+            </div>
+            <button className="mt-2 bg-blue-500 text-white rounded-full p-2 cursor-pointer duration-500 transition hover:bg-blue-600">
+              <ArrowUp size={20} color="white" />
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );
 };
 
-export default ChatInput;
+export default UploadFile;
