@@ -96,6 +96,14 @@ const UploadFile = () => {
         fileUrl,
       });
 
+      // call the process api route
+      await fetch("/api/files/process", {
+        method: "POST",
+        body: JSON.stringify({
+          key,
+        }),
+      });
+
       // Later:
       // await fetch("/api/process-pdf", {
       //   method: "POST",
