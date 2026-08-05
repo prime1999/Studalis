@@ -25,24 +25,20 @@ const UploadFile = () => {
   } | null>(null);
 
   const handleClick = () => {
-    console.log("clicked");
-    console.log(fileInputRef.current);
     fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("file1");
     const file = e.target.files?.[0];
 
     if (!file) return;
 
     try {
-      console.log("file2");
       // Optional validation
       if (file.type !== "application/pdf") {
         throw new Error("Only PDF files are allowed");
       }
-      console.log("file3");
+
       // Get presigned URL
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -54,13 +50,13 @@ const UploadFile = () => {
           fileType: file.type,
         }),
       });
-      console.log("file4");
+
       if (!res.ok) {
         throw new Error("Failed to get upload URL");
       }
-      console.log("file5");
-      const { uploadUrl, key } = await res.json();
-      console.log("file6");
+
+      const { uploadUrl, key, document } = await res.json();
+
       // Upload to S3
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
@@ -69,7 +65,7 @@ const UploadFile = () => {
           "Content-Type": file.type,
         },
       });
-      console.log("file7");
+
       if (!uploadRes.ok) {
         console.error("Error uploading file:");
         throw new Error("Failed to upload file");

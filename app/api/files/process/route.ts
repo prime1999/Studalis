@@ -2,11 +2,18 @@ import { s3 } from "@/lib/s3";
 import { extractPdfText } from "@/lib/s3-extract";
 import { getPdfBuffer } from "@/lib/get-pdf-buttfer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const { key } = await req.json();
+  const { key, documentId } = await req.json();
+  const { userId } = await auth();
+
+  if (!userId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const jsonKey = key
     .replace("uploads/", "processed/")
     .replace(".pdf", ".json");
@@ -28,6 +35,31 @@ export async function POST(req: Request) {
   });
 
   await s3.send(command);
+
+  const document = await prisma.document.findFirst({
+    where: {
+      id: documentId,
+      userId,
+    },
+  });
+
+  console.log("Document found:", document);
+
+  if (!document) {
+    return Response.json({ error: "Document not found" }, { status: 404 });
+  }
+
+  console.log({ documentId });
+
+  await prisma.document.update({
+    where: {
+      id: document.id,
+    },
+    data: {
+      processedKey: jsonKey,
+      status: "ready",
+    },
+  });
 
   return Response.json({
     jsonKey,
