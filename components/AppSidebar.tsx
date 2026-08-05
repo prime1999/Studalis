@@ -44,8 +44,8 @@ const mainNavItems = [
     icon: BookOpen,
   },
   {
-    title: "Library",
-    url: "/library",
+    title: "Documents",
+    url: "/documents",
     icon: FolderOpen,
   },
   {

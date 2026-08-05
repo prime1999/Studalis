@@ -3,6 +3,8 @@ import { extractPdfText } from "@/lib/s3-extract";
 import { getPdfBuffer } from "@/lib/get-pdf-buttfer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 
+export const runtime = "nodejs";
+
 export async function POST(req: Request) {
   const { key } = await req.json();
   const jsonKey = key

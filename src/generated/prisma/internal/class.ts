@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.9.1",
   "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "cockroachdb",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"cockroachdb\"\n}\n\nenum crdb_internal_region {\n  aws_eu_central_1 @map(\"aws-eu-central-1\")\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"cockroachdb\"\n}\n\nenum crdb_internal_region {\n  aws_eu_central_1 @map(\"aws-eu-central-1\")\n}\n\nmodel Document {\n  id     String @id @default(cuid())\n  userId String\n\n  title String\n\n  pdfKey       String\n  processedKey String?\n\n  status String @default(\"processing\")\n\n  createdAt DateTime @default(now())\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -32,10 +32,10 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Document\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"pdfKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"processedKey\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 config.parameterizationSchema = {
-  strings: JSON.parse("[]"),
-  graph: "AAAA"
+  strings: JSON.parse("[\"where\",\"Document.findUnique\",\"Document.findUniqueOrThrow\",\"orderBy\",\"cursor\",\"Document.findFirst\",\"Document.findFirstOrThrow\",\"Document.findMany\",\"data\",\"Document.createOne\",\"Document.createMany\",\"Document.createManyAndReturn\",\"Document.updateOne\",\"Document.updateMany\",\"Document.updateManyAndReturn\",\"create\",\"update\",\"Document.upsertOne\",\"Document.deleteOne\",\"Document.deleteMany\",\"having\",\"_count\",\"_min\",\"_max\",\"Document.groupBy\",\"Document.aggregate\",\"AND\",\"OR\",\"NOT\",\"id\",\"userId\",\"title\",\"pdfKey\",\"processedKey\",\"status\",\"createdAt\",\"equals\",\"in\",\"notIn\",\"lt\",\"lte\",\"gt\",\"gte\",\"not\",\"contains\",\"startsWith\",\"endsWith\",\"set\"]"),
+  graph: "MAkQChoAACYAMBsAAAQAEBwAACYAMB0BAAAAAR4BACcAIR8BACcAISABACcAISEBACgAISIBACcAISNAACkAIQEAAAABACABAAAAAQAgChoAACYAMBsAAAQAEBwAACYAMB0BACcAIR4BACcAIR8BACcAISABACcAISEBACgAISIBACcAISNAACkAIQEhAAAqACADAAAABAAgAwAABQAwBAAAAQAgAwAAAAQAIAMAAAUAMAQAAAEAIAMAAAAEACADAAAFADAEAAABACAHHQEAAAABHgEAAAABHwEAAAABIAEAAAABIQEAAAABIgEAAAABI0AAAAABAQgAAAkAIAcdAQAAAAEeAQAAAAEfAQAAAAEgAQAAAAEhAQAAAAEiAQAAAAEjQAAAAAEBCAAACwAwAQgAAAsAMAcdAQAuACEeAQAuACEfAQAuACEgAQAuACEhAQAvACEiAQAuACEjQAAwACECAAAAAQAgCAAADgAgBx0BAC4AIR4BAC4AIR8BAC4AISABAC4AISEBAC8AISIBAC4AISNAADAAIQIAAAAEACAIAAAQACACAAAABAAgCAAAEAAgAwAAAAEAIA8AAAkAIBAAAA4AIAEAAAABACABAAAABAAgBBUAACsAIBYAAC0AIBcAACwAICEAACoAIAoaAAAaADAbAAAXABAcAAAaADAdAQAbACEeAQAbACEfAQAbACEgAQAbACEhAQAcACEiAQAbACEjQAAdACEDAAAABAAgAwAAFgAwFAAAFwAgAwAAAAQAIAMAAAUAMAQAAAEAIAoaAAAaADAbAAAXABAcAAAaADAdAQAbACEeAQAbACEfAQAbACEgAQAbACEhAQAcACEiAQAbACEjQAAdACEOFQAAHwAgFgAAJQAgFwAAJQAgJAEAAAABJQEAAAAEJgEAAAAEJwEAAAABKAEAAAABKQEAAAABKgEAAAABKwEAJAAhLAEAAAABLQEAAAABLgEAAAABDhUAACIAIBYAACMAIBcAACMAICQBAAAAASUBAAAABSYBAAAABScBAAAAASgBAAAAASkBAAAAASoBAAAAASsBACEAISwBAAAAAS0BAAAAAS4BAAAAAQsVAAAfACAWAAAgACAXAAAgACAkQAAAAAElQAAAAAQmQAAAAAQnQAAAAAEoQAAAAAEpQAAAAAEqQAAAAAErQAAeACELFQAAHwAgFgAAIAAgFwAAIAAgJEAAAAABJUAAAAAEJkAAAAAEJ0AAAAABKEAAAAABKUAAAAABKkAAAAABK0AAHgAhCCQCAAAAASUCAAAABCYCAAAABCcCAAAAASgCAAAAASkCAAAAASoCAAAAASsCAB8AIQgkQAAAAAElQAAAAAQmQAAAAAQnQAAAAAEoQAAAAAEpQAAAAAEqQAAAAAErQAAgACEOFQAAIgAgFgAAIwAgFwAAIwAgJAEAAAABJQEAAAAFJgEAAAAFJwEAAAABKAEAAAABKQEAAAABKgEAAAABKwEAIQAhLAEAAAABLQEAAAABLgEAAAABCCQCAAAAASUCAAAABSYCAAAABScCAAAAASgCAAAAASkCAAAAASoCAAAAASsCACIAIQskAQAAAAElAQAAAAUmAQAAAAUnAQAAAAEoAQAAAAEpAQAAAAEqAQAAAAErAQAjACEsAQAAAAEtAQAAAAEuAQAAAAEOFQAAHwAgFgAAJQAgFwAAJQAgJAEAAAABJQEAAAAEJgEAAAAEJwEAAAABKAEAAAABKQEAAAABKgEAAAABKwEAJAAhLAEAAAABLQEAAAABLgEAAAABCyQBAAAAASUBAAAABCYBAAAABCcBAAAAASgBAAAAASkBAAAAASoBAAAAASsBACUAISwBAAAAAS0BAAAAAS4BAAAAAQoaAAAmADAbAAAEABAcAAAmADAdAQAnACEeAQAnACEfAQAnACEgAQAnACEhAQAoACEiAQAnACEjQAApACELJAEAAAABJQEAAAAEJgEAAAAEJwEAAAABKAEAAAABKQEAAAABKgEAAAABKwEAJQAhLAEAAAABLQEAAAABLgEAAAABCyQBAAAAASUBAAAABSYBAAAABScBAAAAASgBAAAAASkBAAAAASoBAAAAASsBACMAISwBAAAAAS0BAAAAAS4BAAAAAQgkQAAAAAElQAAAAAQmQAAAAAQnQAAAAAEoQAAAAAEpQAAAAAEqQAAAAAErQAAgACEAAAAAAS8BAAAAAQEvAQAAAAEBL0AAAAABAAAAAAMVAAYWAAcXAAgAAAADFQAGFgAHFwAIAQIBAgMBBQYBBgcBBwgBCQoBCgwCCw0DDA8BDRECDhIEERMBEhQBExUCGBgFGRkJ"
 }
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
@@ -70,8 +70,8 @@ export interface PrismaClientConstructor {
    * const prisma = new PrismaClient({
    *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
    * })
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more Documents
+   * const documents = await prisma.document.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -94,8 +94,8 @@ export interface PrismaClientConstructor {
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Documents
+ * const documents = await prisma.document.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -188,7 +188,15 @@ export interface PrismaClient<
     extArgs: ExtArgs
   }>>
 
-    
+      /**
+   * `prisma.document`: Exposes CRUD operations for the **Document** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Documents
+    * const documents = await prisma.document.findMany()
+    * ```
+    */
+  get document(): Prisma.DocumentDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

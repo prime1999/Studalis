@@ -7,37 +7,20 @@ datasource db {
   provider = "cockroachdb"
 }
 
-model User {
-  id        String   @id
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-
-  materials Material[]
-  sessions  StudySession[]
+enum crdb_internal_region {
+  aws_eu_central_1 @map("aws-eu-central-1")
 }
 
-model Material {
-  id          String   @id @default(cuid())
-  title       String
-  fileUrl     String
-  fileType    String
-  uploadedAt  DateTime @default(now())
+model Document {
+  id           String   @id @default(cuid())
+  userId       String
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id])
+  title        String
 
-  sessions    StudySession[]
-}
+  pdfKey       String
+  processedKey String?
 
-model StudySession {
-  id         String   @id @default(cuid())
-  title      String
-  createdAt  DateTime @default(now())
+  status       String   @default("processing")
 
-  userId     String
-  user       User @relation(fields: [userId], references: [id])
-
-  materialId String?
-  material   Material? @relation(fields: [materialId], references: [id])
+  createdAt    DateTime @default(now())
 }
