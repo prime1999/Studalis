@@ -64,11 +64,17 @@ export async function extractPdfText(buffer: Buffer) {
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
     const page = await pdf.getPage(pageNum);
     const content = await page.getTextContent();
-    const text = content.items.map((item: any) => item.str).join(" ");
+    const text = content.items.map((item: any) => item.str).join("");
+    const cleanedText = text
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    console.log(`Page ${pageNum} cleaned text:`, cleanedText);
 
     pages.push({
       page: pageNum,
-      text,
+      cleanedText,
     });
   }
 

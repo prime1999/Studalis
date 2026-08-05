@@ -13,8 +13,8 @@ enum crdb_internal_region {
 
 model Document {
   id           String   @id @default(cuid())
-  userId       String
 
+  userId       String
   title        String
 
   pdfKey       String
@@ -23,4 +23,17 @@ model Document {
   status       String   @default("processing")
 
   createdAt    DateTime @default(now())
+}
+
+model DocumentChunk {
+  id          String   @id @default(cuid())
+
+  documentId  String
+
+  pageNumber  Int
+  chunkIndex  Int
+
+  content     String
+
+  createdAt   DateTime @default(now())
 }

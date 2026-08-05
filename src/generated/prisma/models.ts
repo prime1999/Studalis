@@ -9,4 +9,5 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Document'
+export type * from './models/DocumentChunk'
 export type * from './commonInputTypes'

@@ -96,6 +96,7 @@ const UploadFile = () => {
       await fetch("/api/files/process", {
         method: "POST",
         body: JSON.stringify({
+          documentId: document.id,
           key,
         }),
       });

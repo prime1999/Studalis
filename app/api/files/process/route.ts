@@ -4,6 +4,7 @@ import { getPdfBuffer } from "@/lib/get-pdf-buttfer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import { chunkText } from "@/lib/chunk-text";
 
 export const runtime = "nodejs";
 
@@ -23,6 +24,30 @@ export async function POST(req: Request) {
 
   // 2. Extract text
   const pdfText = await extractPdfText(pdfBuffer);
+
+  if (!pdfText.pages || pdfText.pages.length === 0) {
+    console.error("No pages found in PDF");
+    return Response.json({ error: "No pages found in PDF" }, { status: 400 });
+  }
+
+  for (const page of pdfText.pages) {
+    const chunks = chunkText(page.cleanedText);
+
+    console.log({ page, chunks });
+    for (let i = 0; i < chunks.length; i++) {
+      await prisma.documentChunk.create({
+        data: {
+          documentId,
+
+          pageNumber: page.page,
+
+          chunkIndex: i,
+
+          content: chunks[i],
+        },
+      });
+    }
+  }
 
   console.log("Extracted PDF Text:", pdfText);
 
