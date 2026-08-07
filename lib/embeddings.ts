@@ -4,8 +4,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
-console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY);
-
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("Missing GEMINI_API_KEY environment variable");
 }
@@ -16,12 +14,8 @@ export async function createEmbedding(text: string): Promise<any> {
     contents: text,
   });
 
-  console.log("Embedding result:", result);
-
   // embedContent returns result.embedding or result.embeddings[0]
   const embedding = result.embeddings ?? result.embeddings?.[0];
-
-  console.log("Embedding:", embedding?.[0]);
 
   return embedding?.[0]?.values ?? [];
 }

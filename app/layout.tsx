@@ -3,6 +3,8 @@ import { Roboto, Geist } from "next/font/google";
 import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+// React-query imports
+import Providers from "./ReactQueryProvider/Provider";
 
 const roboto = Roboto({
   variable: "--font-zenix-roboto",
@@ -49,7 +51,9 @@ export default function RootLayout({
         lang="en"
         className={`${roboto.variable} ${geistSans.variable} ${voegies.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col">{children}</body>
+        <body className="min-h-full flex flex-col">
+          <Providers>{children}</Providers>
+        </body>
       </html>
     </ClerkProvider>
   );
