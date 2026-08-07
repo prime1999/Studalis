@@ -35,5 +35,7 @@ model DocumentChunk {
 
   content     String
 
+  embedding   Unsupported("VECTOR")?
+
   createdAt   DateTime @default(now())
 }

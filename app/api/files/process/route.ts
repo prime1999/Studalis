@@ -5,6 +5,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { chunkText } from "@/lib/chunk-text";
+import { createEmbedding } from "@/lib/embeddings";
 
 export const runtime = "nodejs";
 
@@ -30,22 +31,35 @@ export async function POST(req: Request) {
     return Response.json({ error: "No pages found in PDF" }, { status: 400 });
   }
 
+  ///////////////////TODO: add batch embedding of chunks later ////////////////////////////////
+  // embedding the chunks and saving the document chunks to the database
   for (const page of pdfText.pages) {
     const chunks = chunkText(page.cleanedText);
 
-    console.log({ page, chunks });
     for (let i = 0; i < chunks.length; i++) {
-      await prisma.documentChunk.create({
+      const chunk = await prisma.documentChunk.create({
         data: {
           documentId,
-
           pageNumber: page.page,
-
           chunkIndex: i,
-
           content: chunks[i],
         },
       });
+
+      console.log({ chunks });
+
+      const embedding = await createEmbedding(chunks[i]);
+      console.log({ embedding });
+
+      await prisma.$executeRawUnsafe(
+        `
+      UPDATE "DocumentChunk"
+      SET embedding = $1::VECTOR
+      WHERE id = $2
+      `,
+        JSON.stringify(embedding),
+        chunk.id,
+      );
     }
   }
 
