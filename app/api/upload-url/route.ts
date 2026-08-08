@@ -26,8 +26,6 @@ export async function POST(req: NextRequest) {
     expiresIn: 60 * 5,
   });
 
-  console.log({ key, uploadUrl });
-
   // create the document in the db
   const document = await prisma.document.create({
     data: {
@@ -37,8 +35,6 @@ export async function POST(req: NextRequest) {
       status: "processing",
     },
   });
-
-  console.log("Document created:", document);
 
   return NextResponse.json({
     document,

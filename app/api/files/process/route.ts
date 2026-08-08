@@ -46,10 +46,7 @@ export async function POST(req: Request) {
         },
       });
 
-      console.log({ chunks });
-
       const embedding = await createEmbedding(chunks[i]);
-      console.log({ embedding });
 
       await prisma.$executeRawUnsafe(
         `
@@ -62,8 +59,6 @@ export async function POST(req: Request) {
       );
     }
   }
-
-  console.log("Extracted PDF Text:", pdfText);
 
   // 3. Save JSON to S3
   const command = new PutObjectCommand({
@@ -82,13 +77,9 @@ export async function POST(req: Request) {
     },
   });
 
-  console.log("Document found:", document);
-
   if (!document) {
     return Response.json({ error: "Document not found" }, { status: 404 });
   }
-
-  console.log({ documentId });
 
   await prisma.document.update({
     where: {

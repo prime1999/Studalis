@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { SignOutButton } from "@clerk/nextjs";
@@ -14,6 +15,7 @@ import {
   ChevronUp,
   Brain,
   CardSim,
+  FileIcon,
 } from "lucide-react";
 
 import {
@@ -34,8 +36,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
+import { useAllUserDocuments } from "@/lib/ReactQueries/getDocument";
 
 const mainNavItems = [
   {
@@ -76,7 +80,9 @@ const secondaryNavItems = [
 const AppSidebar = () => {
   const pathname = usePathname();
   const { isLoaded, isSignedIn, user } = useUser();
+  const { isPending, data } = useAllUserDocuments();
   console.log("Current User:", user);
+  console.log({ data });
 
   return (
     <Sidebar collapsible="icon">
@@ -107,12 +113,58 @@ const AppSidebar = () => {
                 return (
                   <SidebarMenuItem key={item.title} className="mt-2">
                     <SidebarMenuButton isActive={isActive} tooltip={item.title}>
-                      <Link href={item.url} className="flex items-center gap-2">
-                        <item.icon />
-                        <span className="group-data-[collapsible=icon]:hidden">
-                          {item.title}
-                        </span>
-                      </Link>
+                      {item.title === "Documents" ? (
+                        <>
+                          <DropdownMenu>
+                            {" "}
+                            <DropdownMenuTrigger
+                              render={
+                                <button className="flex gap-2 items-center cursor-pointer">
+                                  <FolderOpen />
+                                  <span>Complex Menu</span>
+                                  {data && (
+                                    <span className="w-6 h-6 flex items-center justify-center text-center text-xs rounded-full bg-blue-700 text-white">
+                                      {data.length}
+                                    </span>
+                                  )}
+                                </button>
+                              }
+                            />
+                            <DropdownMenuContent className="w-44 text-sm">
+                              <DropdownMenuGroup>
+                                {" "}
+                                {data?.map((document: any) => (
+                                  <DropdownMenuItem key={document.id}>
+                                    <Link
+                                      href={`/dashboard${item.url}/${document.id}`}
+                                      className="flex items-center gap-2 text-xs"
+                                    >
+                                      <FileIcon />
+                                      <p className="truncate w-22">
+                                        {" "}
+                                        {document.title}
+                                      </p>
+                                      <DropdownMenuShortcut>
+                                        ⌘O
+                                      </DropdownMenuShortcut>
+                                    </Link>
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </>
+                      ) : (
+                        <Link
+                          href={item.url}
+                          className="flex items-center gap-2"
+                        >
+                          <item.icon />
+                          <span className="group-data-[collapsible=icon]:hidden">
+                            {item.title}
+                          </span>
+                        </Link>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
