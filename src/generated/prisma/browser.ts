@@ -27,3 +27,8 @@ export type Document = Prisma.DocumentModel
  * 
  */
 export type DocumentChunk = Prisma.DocumentChunkModel
+/**
+ * Model StudySession
+ * 
+ */
+export type StudySession = Prisma.StudySessionModel

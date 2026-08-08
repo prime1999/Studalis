@@ -10,4 +10,5 @@
  */
 export type * from './models/Document'
 export type * from './models/DocumentChunk'
+export type * from './models/StudySession'
 export type * from './commonInputTypes'

@@ -39,3 +39,19 @@ model DocumentChunk {
 
   createdAt   DateTime @default(now())
 }
+
+model StudySession {
+  id           String   @id @default(cuid())
+
+  userId       String
+
+  documentId   String
+
+  currentPage  Int      @default(1)
+
+  status       String   @default("active")
+
+  startedAt    DateTime @default(now())
+
+  lastOpenedAt DateTime @updatedAt
+}

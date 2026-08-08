@@ -32,7 +32,6 @@ const getAllUserDocuments = async () => {
 };
 
 const getDocumentUrl = async (documentId: string) => {
-  console.log("Fetching document URL for documentId:", documentId);
   const res = await fetch(`/api/documents/${documentId}/view`);
 
   if (!res.ok) {

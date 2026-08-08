@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Document: 'Document',
-  DocumentChunk: 'DocumentChunk'
+  DocumentChunk: 'DocumentChunk',
+  StudySession: 'StudySession'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -92,6 +93,19 @@ export const DocumentChunkScalarFieldEnum = {
 } as const
 
 export type DocumentChunkScalarFieldEnum = (typeof DocumentChunkScalarFieldEnum)[keyof typeof DocumentChunkScalarFieldEnum]
+
+
+export const StudySessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  currentPage: 'currentPage',
+  status: 'status',
+  startedAt: 'startedAt',
+  lastOpenedAt: 'lastOpenedAt'
+} as const
+
+export type StudySessionScalarFieldEnum = (typeof StudySessionScalarFieldEnum)[keyof typeof StudySessionScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -398,7 +398,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Document: 'Document',
-  DocumentChunk: 'DocumentChunk'
+  DocumentChunk: 'DocumentChunk',
+  StudySession: 'StudySession'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "document" | "documentChunk"
+    modelProps: "document" | "documentChunk" | "studySession"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -566,6 +567,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    StudySession: {
+      payload: Prisma.$StudySessionPayload<ExtArgs>
+      fields: Prisma.StudySessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StudySessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StudySessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>
+        }
+        findFirst: {
+          args: Prisma.StudySessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StudySessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>
+        }
+        findMany: {
+          args: Prisma.StudySessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>[]
+        }
+        create: {
+          args: Prisma.StudySessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>
+        }
+        createMany: {
+          args: Prisma.StudySessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StudySessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>[]
+        }
+        delete: {
+          args: Prisma.StudySessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>
+        }
+        update: {
+          args: Prisma.StudySessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.StudySessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StudySessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StudySessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.StudySessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StudySessionPayload>
+        }
+        aggregate: {
+          args: Prisma.StudySessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStudySession>
+        }
+        groupBy: {
+          args: Prisma.StudySessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudySessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StudySessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StudySessionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -626,6 +701,19 @@ export const DocumentChunkScalarFieldEnum = {
 } as const
 
 export type DocumentChunkScalarFieldEnum = (typeof DocumentChunkScalarFieldEnum)[keyof typeof DocumentChunkScalarFieldEnum]
+
+
+export const StudySessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  currentPage: 'currentPage',
+  status: 'status',
+  startedAt: 'startedAt',
+  lastOpenedAt: 'lastOpenedAt'
+} as const
+
+export type StudySessionScalarFieldEnum = (typeof StudySessionScalarFieldEnum)[keyof typeof StudySessionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -866,6 +954,7 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   document?: Prisma.DocumentOmit
   documentChunk?: Prisma.DocumentChunkOmit
+  studySession?: Prisma.StudySessionOmit
 }
 
 /* Types for Logging */
