@@ -111,7 +111,7 @@ export default function PdfViewer({ file }: PdfViewerProps) {
         >
           <button
             onClick={() => console.log("Explain:", selectedText)}
-            className="px-3 py-1 text-sm cursor-pointer"
+            className="px-3 py-1 text-sm cursor-pointer bg-blue-300 rounded-lg duration-500 transition hover:bg-blue-400"
           >
             Explain
           </button>

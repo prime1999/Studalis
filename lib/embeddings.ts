@@ -16,6 +16,7 @@ export async function createEmbedding(text: string): Promise<any> {
 
   // embedContent returns result.embedding or result.embeddings[0]
   const embedding = result.embeddings ?? result.embeddings?.[0];
+  console.log({ embedding });
 
   return embedding?.[0]?.values ?? [];
 }
