@@ -55,3 +55,18 @@ model StudySession {
 
   lastOpenedAt DateTime @updatedAt
 }
+
+model LearningInteraction {
+  id String @id @default(cuid())
+
+  sessionId String
+  documentId String
+
+  sourceText String
+
+  interactionType String
+
+  content Json
+
+  createdAt DateTime @default(now())
+}

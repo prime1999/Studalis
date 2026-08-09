@@ -13,6 +13,19 @@ export async function getOrCreateSession({ userId, documentId }: Props) {
     },
   });
 
+  if (session) {
+    session = await prisma.studySession.update({
+      where: {
+        id: session.id,
+      },
+      data: {
+        lastOpenedAt: new Date(),
+      },
+    });
+
+    return session;
+  }
+
   if (!session) {
     session = await prisma.studySession.create({
       data: {

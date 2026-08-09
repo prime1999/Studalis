@@ -399,7 +399,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Document: 'Document',
   DocumentChunk: 'DocumentChunk',
-  StudySession: 'StudySession'
+  StudySession: 'StudySession',
+  LearningInteraction: 'LearningInteraction'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -415,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "document" | "documentChunk" | "studySession"
+    modelProps: "document" | "documentChunk" | "studySession" | "learningInteraction"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -641,6 +642,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LearningInteraction: {
+      payload: Prisma.$LearningInteractionPayload<ExtArgs>
+      fields: Prisma.LearningInteractionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LearningInteractionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LearningInteractionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>
+        }
+        findFirst: {
+          args: Prisma.LearningInteractionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LearningInteractionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>
+        }
+        findMany: {
+          args: Prisma.LearningInteractionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>[]
+        }
+        create: {
+          args: Prisma.LearningInteractionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>
+        }
+        createMany: {
+          args: Prisma.LearningInteractionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LearningInteractionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>[]
+        }
+        delete: {
+          args: Prisma.LearningInteractionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>
+        }
+        update: {
+          args: Prisma.LearningInteractionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LearningInteractionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LearningInteractionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LearningInteractionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>[]
+        }
+        upsert: {
+          args: Prisma.LearningInteractionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LearningInteractionPayload>
+        }
+        aggregate: {
+          args: Prisma.LearningInteractionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLearningInteraction>
+        }
+        groupBy: {
+          args: Prisma.LearningInteractionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LearningInteractionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LearningInteractionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LearningInteractionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -716,12 +791,32 @@ export const StudySessionScalarFieldEnum = {
 export type StudySessionScalarFieldEnum = (typeof StudySessionScalarFieldEnum)[keyof typeof StudySessionScalarFieldEnum]
 
 
+export const LearningInteractionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  documentId: 'documentId',
+  sourceText: 'sourceText',
+  interactionType: 'interactionType',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type LearningInteractionScalarFieldEnum = (typeof LearningInteractionScalarFieldEnum)[keyof typeof LearningInteractionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -738,6 +833,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -785,6 +889,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -955,6 +1073,7 @@ export type GlobalOmitConfig = {
   document?: Prisma.DocumentOmit
   documentChunk?: Prisma.DocumentChunkOmit
   studySession?: Prisma.StudySessionOmit
+  learningInteraction?: Prisma.LearningInteractionOmit
 }
 
 /* Types for Logging */

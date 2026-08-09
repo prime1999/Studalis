@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
+import { useExplainHighlight } from "@/lib/sessions/interaction";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfFile {
+  id: string;
   key: string;
   fileName: string;
   fileUrl: string;
@@ -26,6 +28,7 @@ export default function PdfViewer({ file }: PdfViewerProps) {
     x: 0,
     y: 0,
   });
+  const explainHighlightMutation = useExplainHighlight();
 
   //   useEffect(() => {
   //   onPageChange?.(pageNumber);
@@ -66,6 +69,23 @@ export default function PdfViewer({ file }: PdfViewerProps) {
       document.removeEventListener("mouseup", handleSelection);
     };
   }, []);
+
+  const handleExplain = () => {
+    explainHighlightMutation.mutate(
+      {
+        documentId: file.id,
+        question: selectedText,
+      },
+      {
+        onSuccess: (data) => {
+          console.log("Explanation:", data);
+        },
+        onError: (error) => {
+          console.error("Error explaining highlight:", error);
+        },
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -110,8 +130,8 @@ export default function PdfViewer({ file }: PdfViewerProps) {
           }}
         >
           <button
-            onClick={() => console.log("Explain:", selectedText)}
-            className="px-3 py-1 text-sm cursor-pointer bg-blue-300 rounded-lg duration-500 transition hover:bg-blue-400"
+            onClick={handleExplain}
+            className="px-3 py-1 text-xs cursor-pointer bg-blue-300 rounded-lg duration-500 transition hover:bg-blue-400"
           >
             Explain
           </button>

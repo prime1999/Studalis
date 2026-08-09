@@ -32,3 +32,8 @@ export type DocumentChunk = Prisma.DocumentChunkModel
  * 
  */
 export type StudySession = Prisma.StudySessionModel
+/**
+ * Model LearningInteraction
+ * 
+ */
+export type LearningInteraction = Prisma.LearningInteractionModel

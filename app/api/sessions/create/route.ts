@@ -2,12 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 
 import { prisma } from "@/lib/prisma";
-import { searchSimilarChunks } from "@/lib/retrieval/search-similar-chunks";
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY!,
-});
+import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
 
 export async function POST(req: Request) {
   try {
@@ -17,11 +12,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { documentId, question } = await req.json();
+    const { documentId } = await req.json();
 
-    if (!documentId || !question) {
+    if (!documentId) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Document ID is required" },
         { status: 400 },
       );
     }
@@ -40,42 +35,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const chunks: any = await searchSimilarChunks(question, documentId);
-
-    const context = chunks.map((chunk: any) => chunk.content).join("\n\n");
-
-    const prompt = `
-You are Studalis, an AI study companion.
-
-Use the document context below to explain the highlighted text.
-
-Document Context:
-${context}
-
-Highlighted Text:
-${question}
-
-Instructions:
-- Explain the highlighted text clearly.
-- Use the document context whenever possible.
-- If the context is insufficient, use your general knowledge.
-- Be concise and educational.
-- Assume you are teaching a student.
-`;
-
-    const result = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: prompt,
+    const session = await getOrCreateSession({
+      userId,
+      documentId,
     });
 
-    const answer = result.text;
-
-    return NextResponse.json({
-      answer,
-      chunksUsed: chunks.length,
-    });
+    return NextResponse.json(session);
   } catch (error) {
-    console.error("EXPLAIN ERROR:", error);
+    console.error("SESSION ERROR:", error);
 
     return NextResponse.json(
       {

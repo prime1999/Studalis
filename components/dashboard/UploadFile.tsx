@@ -23,6 +23,7 @@ const UploadFile = () => {
     fileType: string;
     fileUrl: string;
   } | null>(null);
+  const [createdDocument, setCreatedDocument] = useState<any>(null);
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -56,6 +57,8 @@ const UploadFile = () => {
       }
 
       const { uploadUrl, key, document } = await res.json();
+
+      setCreatedDocument(document);
 
       // Upload to S3
       const uploadRes = await fetch(uploadUrl, {
@@ -119,7 +122,16 @@ const UploadFile = () => {
   };
 
   if (uploadedFile && uploadedFile.fileUrl) {
-    return <PdfViewer file={uploadedFile} />;
+    return (
+      <PdfViewer
+        file={{
+          id: createdDocument.id,
+          key: uploadedFile.key,
+          fileName: uploadedFile.fileName,
+          fileUrl: uploadedFile.fileUrl,
+        }}
+      />
+    );
   }
 
   return (

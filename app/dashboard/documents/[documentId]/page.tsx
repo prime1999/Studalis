@@ -2,8 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import { useDocument } from "@/lib/ReactQueries/getDocument";
-import { useDocumentUrl } from "@/lib/ReactQueries/getDocument";
+import { useDocument, useDocumentUrl } from "@/lib/ReactQueries/getDocument";
 import { useSession } from "@/lib/ReactQueries/useSession";
 
 const PdfViewer = dynamic(() => import("@/components/dashboard/PdfViewer"), {
@@ -35,6 +34,7 @@ export default function Page() {
     <main>
       <PdfViewer
         file={{
+          id: document.id,
           key: document.pdfKey,
           fileName: document.title,
           fileUrl: pdfUrl.url,
