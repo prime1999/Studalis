@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useDocument, useDocumentUrl } from "@/lib/ReactQueries/getDocument";
 import { useSession } from "@/lib/ReactQueries/useSession";
 import { useDocumentStore } from "@/store/document-store";
+import { useSessionStore } from "@/store/session-store";
 
 const PdfViewer = dynamic(() => import("@/components/dashboard/PdfViewer"), {
   ssr: false,
@@ -13,6 +14,7 @@ const PdfViewer = dynamic(() => import("@/components/dashboard/PdfViewer"), {
 
 export default function Page() {
   const { setDocumentId } = useDocumentStore();
+  const { setSessionId } = useSessionStore();
   const params = useParams();
 
   const documentId = params.documentId as string;
@@ -33,7 +35,10 @@ export default function Page() {
     if (document?.id) {
       setDocumentId(document.id);
     }
-  }, [document?.id, setDocumentId]);
+    if (session?.id) {
+      setSessionId(session.id);
+    }
+  }, [document?.id, setDocumentId, session?.id]);
 
   if (loadingDocument || loadingPdf) {
     return (
