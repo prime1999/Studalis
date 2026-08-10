@@ -1,15 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useDocument, useDocumentUrl } from "@/lib/ReactQueries/getDocument";
 import { useSession } from "@/lib/ReactQueries/useSession";
+import { useDocumentStore } from "@/store/document-store";
 
 const PdfViewer = dynamic(() => import("@/components/dashboard/PdfViewer"), {
   ssr: false,
 });
 
 export default function Page() {
+  const { setDocumentId } = useDocumentStore();
   const params = useParams();
 
   const documentId = params.documentId as string;
@@ -26,8 +29,18 @@ export default function Page() {
 
   console.log(session);
 
+  useEffect(() => {
+    if (document?.id) {
+      setDocumentId(document.id);
+    }
+  }, [document?.id, setDocumentId]);
+
   if (loadingDocument || loadingPdf) {
-    return <div className="flex h-full min-h-0 items-center justify-center">Loading...</div>;
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (

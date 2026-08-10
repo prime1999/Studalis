@@ -5,6 +5,7 @@ import { pdfjs, Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import { useExplainHighlight } from "@/lib/sessions/interaction";
+import { useChatStore } from "@/store/chat-store";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -21,6 +22,7 @@ interface PdfViewerProps {
 }
 
 export default function PdfViewer({ file }: PdfViewerProps) {
+  const { setInput, setAction } = useChatStore();
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [selectedText, setSelectedText] = useState("");
@@ -71,19 +73,14 @@ export default function PdfViewer({ file }: PdfViewerProps) {
   }, []);
 
   const handleExplain = () => {
-    explainHighlightMutation.mutate(
-      {
-        documentId: file.id,
-        question: selectedText,
-      },
-      {
-        onSuccess: (data) => {
-          console.log("Explanation:", data);
-        },
-        onError: (error) => {
-          console.error("Error explaining highlight:", error);
-        },
-      },
+    setAction("EXPLAIN");
+
+    setInput(
+      `
+Explain this concept:
+
+${selectedText}
+  `.trim(),
     );
   };
 

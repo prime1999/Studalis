@@ -5,8 +5,12 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
 
 import { prisma } from "@/lib/prisma";
-import { searchSimilarChunks } from "@/lib/retrieval/search-similar-chunks";
 import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
+import { searchSimilarChunks } from "@/lib/retrieval/search-similar-chunks";
+import {
+  buildStudyPrompt,
+  StudyAction,
+} from "@/lib/prompts/build-study-prompts";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
@@ -20,14 +24,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { documentId, message } = await req.json();
+    const {
+      documentId,
+      message,
+      action = "CHAT",
+    }: {
+      documentId: string;
+      message: string;
+      action: StudyAction;
+    } = await req.json();
 
     if (!documentId || !message) {
       return NextResponse.json(
-        {
-          error: "Missing required fields",
-        },
+        { error: "Missing required fields" },
         { status: 400 },
+      );
+    }
+
+    const document = await prisma.document.findFirst({
+      where: {
+        id: documentId,
+        userId,
+      },
+    });
+
+    if (!document) {
+      return NextResponse.json(
+        { error: "Document not found" },
+        { status: 404 },
       );
     }
 
@@ -35,15 +59,6 @@ export async function POST(req: Request) {
       userId,
       documentId,
     });
-
-    if (!session) {
-      return NextResponse.json(
-        {
-          error: "Session not found",
-        },
-        { status: 404 },
-      );
-    }
 
     // Save user message
     await prisma.chatMessage.create({
@@ -54,32 +69,19 @@ export async function POST(req: Request) {
       },
     });
 
-    // Retrieve document chunks
+    // Retrieve relevant chunks
     const chunks: any = await searchSimilarChunks(message, documentId);
 
     const context = chunks.map((chunk: any) => chunk.content).join("\n\n");
 
-    const prompt = `
-You are Studalis, an AI study companion.
-
-Use the document context below when answering.
-
-Document Context:
-${context}
-
-Student Message:
-${message}
-
-Instructions:
-- Be educational.
-- Explain clearly.
-- Use the document context whenever relevant.
-- If context is insufficient, use general knowledge.
-- Keep answers concise unless more detail is needed.
-`;
+    const prompt = buildStudyPrompt({
+      action,
+      context,
+      message,
+    });
 
     const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: prompt,
     });
 
@@ -94,9 +96,37 @@ Instructions:
       },
     });
 
+    // Save study interaction
+    if (action !== "CHAT") {
+      await prisma.learningInteraction.create({
+        data: {
+          sessionId: session.id,
+          documentId,
+          sourceText: message,
+          interactionType: action,
+          content: {
+            answer,
+            chunksUsed: chunks.length,
+          },
+        },
+      });
+    }
+
+    // Update session activity
+    await prisma.studySession.update({
+      where: {
+        id: session.id,
+      },
+      data: {
+        lastOpenedAt: new Date(),
+      },
+    });
+
     return NextResponse.json({
       answer,
+      action,
       chunksUsed: chunks.length,
+      sessionId: session.id,
     });
   } catch (error) {
     console.error("CHAT ERROR:", error);
@@ -106,9 +136,7 @@ Instructions:
         error: "Internal Server Error",
         details: error instanceof Error ? error.message : "Unknown error",
       },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   }
 }

@@ -4,24 +4,37 @@ import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import MessageList from "./MessageList";
 import ChatScrollArea from "./ChatScrollArea";
+import { useChatStore } from "@/store/chat-store";
+import { useDocumentStore } from "@/store/document-store";
 
 const StudyChatUI = () => {
-  const [input, setInput] = useState("");
+  const { documentId } = useDocumentStore();
+  const { input, action, setInput, clear } = useChatStore();
 
-  const { messages, sendMessage, status } = useChat();
+  const { messages, status } = useChat();
 
   const isPending = status === "submitted" || status === "streaming";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!input.trim() || isPending) return;
-
-    sendMessage({
-      text: input,
+    console.log("here");
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        documentId,
+        message: input,
+        action,
+      }),
     });
 
-    setInput("");
+    const data = await res.json();
+
+    console.log(data.answer);
+
+    clear();
   };
 
   return (
@@ -44,7 +57,7 @@ const StudyChatUI = () => {
         />
       </ChatScrollArea>
 
-      <form onSubmit={handleSubmit} className="border-t p-4">
+      <form onSubmit={sendMessage} className="border-t p-4">
         <div className="flex gap-2">
           <input
             value={input}
