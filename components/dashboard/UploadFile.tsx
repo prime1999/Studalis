@@ -135,7 +135,7 @@ const UploadFile = () => {
   }
 
   return (
-    <main className="w-full h-screen flex items-center justify-center">
+    <main className="flex h-full min-h-0 w-full flex-1 items-center justify-center">
       {/* <textarea
         placeholder="Let's start learning..."
         className="w-full h-24 p-4 font-normal text-sm text-black/90 border rounded-lg focus:outline-none"

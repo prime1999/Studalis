@@ -2,7 +2,7 @@ import UploadFile from "@/components/dashboard/UploadFile";
 
 const page = () => {
   return (
-    <main className="w-full h-screen">
+    <main className="flex h-full min-h-0 w-full">
       <UploadFile />
     </main>
   );

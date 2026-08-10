@@ -27,11 +27,11 @@ export default function Page() {
   console.log(session);
 
   if (loadingDocument || loadingPdf) {
-    return <div>Loading...</div>;
+    return <div className="flex h-full min-h-0 items-center justify-center">Loading...</div>;
   }
 
   return (
-    <main>
+    <main className="col-span-2 flex h-full min-h-0 flex-col">
       <PdfViewer
         file={{
           id: document.id,

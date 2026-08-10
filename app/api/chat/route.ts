@@ -1,9 +1,11 @@
+// app/api/chat/route.ts
+
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { GoogleGenAI } from "@google/genai";
 
 import { prisma } from "@/lib/prisma";
 import { searchSimilarChunks } from "@/lib/retrieval/search-similar-chunks";
-import { GoogleGenAI } from "@google/genai";
 import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
 
 const ai = new GoogleGenAI({
@@ -18,26 +20,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { documentId, question } = await req.json();
+    const { documentId, message } = await req.json();
 
-    if (!documentId || !question) {
+    if (!documentId || !message) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        {
+          error: "Missing required fields",
+        },
         { status: 400 },
-      );
-    }
-
-    const document = await prisma.document.findFirst({
-      where: {
-        id: documentId,
-        userId,
-      },
-    });
-
-    if (!document) {
-      return NextResponse.json(
-        { error: "Document not found" },
-        { status: 404 },
       );
     }
 
@@ -46,50 +36,61 @@ export async function POST(req: Request) {
       documentId,
     });
 
-    const chunks: any = await searchSimilarChunks(question, documentId);
+    if (!session) {
+      return NextResponse.json(
+        {
+          error: "Session not found",
+        },
+        { status: 404 },
+      );
+    }
+
+    // Save user message
+    await prisma.chatMessage.create({
+      data: {
+        sessionId: session.id,
+        role: "user",
+        content: message,
+      },
+    });
+
+    // Retrieve document chunks
+    const chunks: any = await searchSimilarChunks(message, documentId);
 
     const context = chunks.map((chunk: any) => chunk.content).join("\n\n");
 
     const prompt = `
 You are Studalis, an AI study companion.
 
-Use the document context below to explain the highlighted text.
+Use the document context below when answering.
 
 Document Context:
 ${context}
 
-Highlighted Text:
-${question}
+Student Message:
+${message}
 
 Instructions:
-- Explain the highlighted text clearly.
-- Use the document context whenever possible.
-- If the context is insufficient, use your general knowledge.
-- Be concise and educational.
-- Assume you are teaching a student.
+- Be educational.
+- Explain clearly.
+- Use the document context whenever relevant.
+- If context is insufficient, use general knowledge.
+- Keep answers concise unless more detail is needed.
 `;
 
     const result = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
 
-    console.log("result", result);
+    const answer = result.text ?? "I couldn't generate a response.";
 
-    const answer = result.text;
-
-    await prisma.learningInteraction.create({
+    // Save assistant message
+    await prisma.chatMessage.create({
       data: {
         sessionId: session.id,
-        documentId,
-
-        sourceText: question,
-
-        interactionType: "EXPLAIN",
-
-        content: {
-          answer,
-        },
+        role: "assistant",
+        content: answer,
       },
     });
 
@@ -98,14 +99,16 @@ Instructions:
       chunksUsed: chunks.length,
     });
   } catch (error) {
-    console.error("EXPLAIN ERROR:", error);
+    console.error("CHAT ERROR:", error);
 
     return NextResponse.json(
       {
         error: "Internal Server Error",
         details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 }

@@ -61,3 +61,8 @@ export type StudySession = Prisma.StudySessionModel
  * 
  */
 export type LearningInteraction = Prisma.LearningInteractionModel
+/**
+ * Model ChatMessage
+ * 
+ */
+export type ChatMessage = Prisma.ChatMessageModel

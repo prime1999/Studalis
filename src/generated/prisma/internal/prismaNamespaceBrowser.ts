@@ -54,7 +54,8 @@ export const ModelName = {
   Document: 'Document',
   DocumentChunk: 'DocumentChunk',
   StudySession: 'StudySession',
-  LearningInteraction: 'LearningInteraction'
+  LearningInteraction: 'LearningInteraction',
+  ChatMessage: 'ChatMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -120,6 +121,17 @@ export const LearningInteractionScalarFieldEnum = {
 } as const
 
 export type LearningInteractionScalarFieldEnum = (typeof LearningInteractionScalarFieldEnum)[keyof typeof LearningInteractionScalarFieldEnum]
+
+
+export const ChatMessageScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  role: 'role',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
 
 
 export const SortOrder = {

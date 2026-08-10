@@ -88,7 +88,7 @@ export default function PdfViewer({ file }: PdfViewerProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-4">
       <div className="flex items-center gap-4">
         <button
           onClick={() => setPageNumber((p) => Math.max(p - 1, 1))}
