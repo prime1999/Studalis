@@ -1,14 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import {
+  ArrowUpIcon,
+  RotateCwIcon,
+  MessageCircleDashedIcon,
+} from "lucide-react";
+
 import MessageList from "./MessageList";
-import ChatScrollArea from "./ChatScrollArea";
 import { useChatStore } from "@/store/chat-store";
 import { useDocumentStore } from "@/store/document-store";
 import { useSessionMessages } from "@/lib/ReactQueries/useSessionMessages";
 import { useSessionStore } from "@/store/session-store";
+import MessageTurnTimeline from "./MessageTurnTimeline";
 
-interface Message {
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group";
+import {
+  MessageScroller,
+  MessageScrollerButton,
+  MessageScrollerContent,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+} from "@/components/ui/message-scroller";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
@@ -18,24 +58,36 @@ const StudyChatUI = () => {
   const { documentId } = useDocumentStore();
   const { input, action, setInput, clear } = useChatStore();
   const { sessionId } = useSessionStore();
-  const { data: sessionMessages } = useSessionMessages(sessionId ?? undefined);
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { data: sessionMessages, isPending: loadingMessages } =
+    useSessionMessages(sessionId ?? undefined);
+
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const [isPending, setIsPending] = useState(false);
+
+  const previousMessages: Message[] =
+    sessionMessages?.messages?.map((message: any) => ({
+      id: message.id,
+      role: message.role as "user" | "assistant",
+      content: message.content,
+    })) ?? [];
+
+  const allMessages = [...previousMessages, ...localMessages];
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim()) return;
+    if (!input.trim() || isPending) return;
 
+    const messageText = input;
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: "user",
-      content: input,
+      content: messageText,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
-
+    setLocalMessages((prev) => [...prev, userMessage]);
+    clear();
     setIsPending(true);
 
     try {
@@ -46,58 +98,128 @@ const StudyChatUI = () => {
         },
         body: JSON.stringify({
           documentId,
-          message: input,
+          message: messageText,
           action,
         }),
       });
+
+      if (!res.ok) throw new Error("Failed to send message");
 
       const data = await res.json();
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: data.answer,
+        content: data.answer ?? "I couldn't generate a response.",
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      clear();
+      setLocalMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
-      console.error(error);
+      console.error("CHAT ERROR:", error);
     } finally {
       setIsPending(false);
     }
   };
 
+  const handleReset = () => {
+    setLocalMessages([]);
+    clear();
+  };
+
   return (
-    <div className="flex h-full flex-col">
-      <div className="border-b p-4">
-        <h2 className="font-semibold">Studalis</h2>
-      </div>
+    <MessageScrollerProvider>
+      <Card className="flex h-full w-full flex-col gap-0 rounded-none border-none shadow-none">
+        {/* Header */}
+        <CardHeader className="flex-row items-center justify-between border-b px-4 py-3">
+          <CardTitle className="text-base font-semibold">Studalis</CardTitle>
+          <CardAction>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Reset local chat"
+                    onClick={handleReset}
+                    disabled={isPending}
+                  >
+                    <RotateCwIcon className="h-4 w-4" />
+                  </Button>
+                }
+              />
+              <TooltipContent>
+                <p>Clear Local Chat</p>
+              </TooltipContent>
+            </Tooltip>
+          </CardAction>
+        </CardHeader>
 
-      <ChatScrollArea>
-        <MessageList messages={sessionMessages?.messages ?? []} />
-      </ChatScrollArea>
+        {/* Content Body / Scroll Container */}
+        <CardContent className="relative flex-1 overflow-hidden p-0">
+          {loadingMessages ? (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              Loading conversation...
+            </div>
+          ) : allMessages.length === 0 ? (
+            <Empty className="h-full">
+              <EmptyHeader>
+                <EmptyTitle>Welcome to Studalis!</EmptyTitle>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <MessageScroller>
+              {/* 1. The Timeline Scrub Bar on the right */}
+              <MessageTurnTimeline messages={allMessages} />
 
-      <form onSubmit={sendMessage} className="border-t p-4">
-        <div className="flex gap-2">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Studalis..."
-            className="flex-1 rounded-md border px-3 py-2"
-          />
+              {/* 2. The Chat Viewport */}
+              <MessageScrollerViewport>
+                <MessageScrollerContent aria-busy={isPending} className="p-4">
+                  <MessageList messages={allMessages} isPending={isPending} />
+                </MessageScrollerContent>
+              </MessageScrollerViewport>
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="rounded-md bg-primary px-4 py-2 text-primary-foreground disabled:opacity-50"
-          >
-            {isPending ? "Thinking..." : "Send"}
-          </button>
-        </div>
-      </form>
-    </div>
+              <MessageScrollerButton />
+            </MessageScroller>
+          )}
+        </CardContent>
+
+        {/* Input Footer */}
+        <CardFooter className="border-t p-4">
+          <form onSubmit={sendMessage} className="w-full">
+            <InputGroup>
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (input.trim() && !isPending) {
+                      sendMessage(e);
+                    }
+                  }
+                }}
+                placeholder="Ask Studalis..."
+                disabled={isPending}
+                rows={1}
+                className="min-h-[44px] flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50"
+              />
+              <InputGroupAddon align="block-end" className="p-1">
+                <InputGroupButton
+                  type="submit"
+                  variant="default"
+                  size="icon-sm"
+                  disabled={!input.trim() || isPending}
+                  className="ml-auto"
+                >
+                  <ArrowUpIcon className="h-4 w-4" />
+                  <span className="sr-only">Send</span>
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </form>
+        </CardFooter>
+      </Card>
+    </MessageScrollerProvider>
   );
 };
 

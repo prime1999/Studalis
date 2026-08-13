@@ -1,4 +1,5 @@
 import AIMessage from "./AIMessage";
+import { MessageAnimated } from "@/components/MessageAnimated";
 
 type Message = {
   id: string;
@@ -8,30 +9,48 @@ type Message = {
 
 type MessageListProps = {
   messages: Message[];
+  isPending?: boolean;
 };
 
-const MessageList = ({ messages }: MessageListProps) => {
+const MessageList = ({ messages, isPending }: MessageListProps) => {
   return (
-    <div className="flex flex-col gap-5 p-4">
+    <div className="flex flex-col gap-5 pr-6">
+      {" "}
+      {/* Added right padding so text doesn't overlap timeline */}
       {messages.map((message) => {
         if (message.role === "user") {
           return (
-            <div key={message.id} className="flex justify-end">
-              <div className="max-w-[80%] rounded-2xl rounded-br-md bg-black px-4 py-3 text-sm text-white">
-                {message.content}
-              </div>
+            <div id={`msg-${message.id}`} key={message.id}>
+              <MessageAnimated messageId={message.id} scrollAnchor={true}>
+                <div className="flex justify-end">
+                  <div className="max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-sm text-primary-foreground shadow-sm">
+                    {message.content}
+                  </div>
+                </div>
+              </MessageAnimated>
             </div>
           );
         }
 
         return (
-          <div key={message.id} className="flex justify-start">
-            <div className="max-w-[90%] text-sm">
-              <AIMessage content={message.content} />
-            </div>
+          <div id={`msg-${message.id}`} key={message.id}>
+            <MessageAnimated messageId={message.id} scrollAnchor={false}>
+              <div className="flex justify-start">
+                <div className="max-w-[92%] text-sm">
+                  <AIMessage content={message.content} />
+                </div>
+              </div>
+            </MessageAnimated>
           </div>
         );
       })}
+      {isPending && (
+        <div className="flex justify-start">
+          <div className="text-xs italic text-muted-foreground animate-pulse">
+            Studalis is thinking...
+          </div>
+        </div>
+      )}
     </div>
   );
 };
