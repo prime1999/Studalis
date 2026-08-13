@@ -857,6 +857,7 @@ export const StudySessionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   documentId: 'documentId',
+  title: 'title',
   currentPage: 'currentPage',
   status: 'status',
   startedAt: 'startedAt',

@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma";
 interface Props {
   userId: string;
   documentId: string;
+  title: string;
 }
 
-export async function getOrCreateSession({ userId, documentId }: Props) {
+export async function getOrCreateSession({ userId, documentId, title }: Props) {
   let session = await prisma.studySession.findFirst({
     where: {
       userId,
@@ -31,6 +32,7 @@ export async function getOrCreateSession({ userId, documentId }: Props) {
       data: {
         userId,
         documentId,
+        title,
       },
     });
   }

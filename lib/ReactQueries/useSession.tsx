@@ -11,7 +11,7 @@ const getSession = async (documentId: string) => {
   return res.json();
 };
 
-const createSession = async (documentId: string) => {
+const createSession = async (documentId: string, title: string) => {
   const res = await fetch("/api/sessions/create", {
     method: "POST",
     headers: {
@@ -19,6 +19,7 @@ const createSession = async (documentId: string) => {
     },
     body: JSON.stringify({
       documentId,
+      title,
     }),
   });
 

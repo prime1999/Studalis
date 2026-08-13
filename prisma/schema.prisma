@@ -44,8 +44,9 @@ model StudySession {
   id           String   @id @default(cuid())
 
   userId       String
-
   documentId   String
+
+  title        String?
 
   currentPage  Int      @default(1)
 

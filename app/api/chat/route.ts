@@ -58,6 +58,7 @@ export async function POST(req: Request) {
     const session = await getOrCreateSession({
       userId,
       documentId,
+      title: document.title,
     });
 
     // Save user message

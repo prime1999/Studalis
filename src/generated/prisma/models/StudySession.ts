@@ -38,6 +38,7 @@ export type StudySessionMinAggregateOutputType = {
   id: string | null
   userId: string | null
   documentId: string | null
+  title: string | null
   currentPage: number | null
   status: string | null
   startedAt: Date | null
@@ -48,6 +49,7 @@ export type StudySessionMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   documentId: string | null
+  title: string | null
   currentPage: number | null
   status: string | null
   startedAt: Date | null
@@ -58,6 +60,7 @@ export type StudySessionCountAggregateOutputType = {
   id: number
   userId: number
   documentId: number
+  title: number
   currentPage: number
   status: number
   startedAt: number
@@ -78,6 +81,7 @@ export type StudySessionMinAggregateInputType = {
   id?: true
   userId?: true
   documentId?: true
+  title?: true
   currentPage?: true
   status?: true
   startedAt?: true
@@ -88,6 +92,7 @@ export type StudySessionMaxAggregateInputType = {
   id?: true
   userId?: true
   documentId?: true
+  title?: true
   currentPage?: true
   status?: true
   startedAt?: true
@@ -98,6 +103,7 @@ export type StudySessionCountAggregateInputType = {
   id?: true
   userId?: true
   documentId?: true
+  title?: true
   currentPage?: true
   status?: true
   startedAt?: true
@@ -195,6 +201,7 @@ export type StudySessionGroupByOutputType = {
   id: string
   userId: string
   documentId: string
+  title: string | null
   currentPage: number
   status: string
   startedAt: Date
@@ -228,6 +235,7 @@ export type StudySessionWhereInput = {
   id?: Prisma.StringFilter<"StudySession"> | string
   userId?: Prisma.StringFilter<"StudySession"> | string
   documentId?: Prisma.StringFilter<"StudySession"> | string
+  title?: Prisma.StringNullableFilter<"StudySession"> | string | null
   currentPage?: Prisma.IntFilter<"StudySession"> | number
   status?: Prisma.StringFilter<"StudySession"> | string
   startedAt?: Prisma.DateTimeFilter<"StudySession"> | Date | string
@@ -238,6 +246,7 @@ export type StudySessionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
@@ -251,6 +260,7 @@ export type StudySessionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.StudySessionWhereInput | Prisma.StudySessionWhereInput[]
   userId?: Prisma.StringFilter<"StudySession"> | string
   documentId?: Prisma.StringFilter<"StudySession"> | string
+  title?: Prisma.StringNullableFilter<"StudySession"> | string | null
   currentPage?: Prisma.IntFilter<"StudySession"> | number
   status?: Prisma.StringFilter<"StudySession"> | string
   startedAt?: Prisma.DateTimeFilter<"StudySession"> | Date | string
@@ -261,6 +271,7 @@ export type StudySessionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
   currentPage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
@@ -279,6 +290,7 @@ export type StudySessionScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"StudySession"> | string
   userId?: Prisma.StringWithAggregatesFilter<"StudySession"> | string
   documentId?: Prisma.StringWithAggregatesFilter<"StudySession"> | string
+  title?: Prisma.StringNullableWithAggregatesFilter<"StudySession"> | string | null
   currentPage?: Prisma.IntWithAggregatesFilter<"StudySession"> | number
   status?: Prisma.StringWithAggregatesFilter<"StudySession"> | string
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"StudySession"> | Date | string
@@ -289,6 +301,7 @@ export type StudySessionCreateInput = {
   id?: string
   userId: string
   documentId: string
+  title?: string | null
   currentPage?: number
   status?: string
   startedAt?: Date | string
@@ -299,6 +312,7 @@ export type StudySessionUncheckedCreateInput = {
   id?: string
   userId: string
   documentId: string
+  title?: string | null
   currentPage?: number
   status?: string
   startedAt?: Date | string
@@ -309,6 +323,7 @@ export type StudySessionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPage?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -319,6 +334,7 @@ export type StudySessionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPage?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -329,6 +345,7 @@ export type StudySessionCreateManyInput = {
   id?: string
   userId: string
   documentId: string
+  title?: string | null
   currentPage?: number
   status?: string
   startedAt?: Date | string
@@ -339,6 +356,7 @@ export type StudySessionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPage?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -349,6 +367,7 @@ export type StudySessionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentPage?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -359,6 +378,7 @@ export type StudySessionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   currentPage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
@@ -373,6 +393,7 @@ export type StudySessionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   currentPage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
@@ -383,6 +404,7 @@ export type StudySessionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   currentPage?: Prisma.SortOrder
   status?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
@@ -399,6 +421,7 @@ export type StudySessionSelect<ExtArgs extends runtime.Types.Extensions.Internal
   id?: boolean
   userId?: boolean
   documentId?: boolean
+  title?: boolean
   currentPage?: boolean
   status?: boolean
   startedAt?: boolean
@@ -409,6 +432,7 @@ export type StudySessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   userId?: boolean
   documentId?: boolean
+  title?: boolean
   currentPage?: boolean
   status?: boolean
   startedAt?: boolean
@@ -419,6 +443,7 @@ export type StudySessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   id?: boolean
   userId?: boolean
   documentId?: boolean
+  title?: boolean
   currentPage?: boolean
   status?: boolean
   startedAt?: boolean
@@ -429,13 +454,14 @@ export type StudySessionSelectScalar = {
   id?: boolean
   userId?: boolean
   documentId?: boolean
+  title?: boolean
   currentPage?: boolean
   status?: boolean
   startedAt?: boolean
   lastOpenedAt?: boolean
 }
 
-export type StudySessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "documentId" | "currentPage" | "status" | "startedAt" | "lastOpenedAt", ExtArgs["result"]["studySession"]>
+export type StudySessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "documentId" | "title" | "currentPage" | "status" | "startedAt" | "lastOpenedAt", ExtArgs["result"]["studySession"]>
 
 export type $StudySessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StudySession"
@@ -444,6 +470,7 @@ export type $StudySessionPayload<ExtArgs extends runtime.Types.Extensions.Intern
     id: string
     userId: string
     documentId: string
+    title: string | null
     currentPage: number
     status: string
     startedAt: Date
@@ -874,6 +901,7 @@ export interface StudySessionFieldRefs {
   readonly id: Prisma.FieldRef<"StudySession", 'String'>
   readonly userId: Prisma.FieldRef<"StudySession", 'String'>
   readonly documentId: Prisma.FieldRef<"StudySession", 'String'>
+  readonly title: Prisma.FieldRef<"StudySession", 'String'>
   readonly currentPage: Prisma.FieldRef<"StudySession", 'Int'>
   readonly status: Prisma.FieldRef<"StudySession", 'String'>
   readonly startedAt: Prisma.FieldRef<"StudySession", 'DateTime'>

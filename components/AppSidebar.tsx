@@ -3,21 +3,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { SignOutButton } from "@clerk/nextjs";
+import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useSessions } from "@/lib/ReactQueries/useSession";
+import { useSessionStore } from "@/store/session-store";
 import {
   BookOpen,
   FolderOpen,
-  MessageSquare,
   Settings,
   HelpCircle,
   LogOut,
   ChevronUp,
   Brain,
-  CardSim,
+  CreditCard,
   FileIcon,
+  MessageSquare,
+  Clock,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +42,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAllUserDocuments } from "@/lib/ReactQueries/getDocument";
 
+// Define interfaces for dynamic data
+interface DocumentItem {
+  id: string;
+  title: string;
+}
+
+interface SessionItem {
+  id: string;
+  title: string;
+}
+
 const mainNavItems = [
   {
     title: "Study",
@@ -55,12 +67,7 @@ const mainNavItems = [
   {
     title: "Cards",
     url: "/cards",
-    icon: CardSim,
-  },
-  {
-    title: "Sessions",
-    url: "/sessions",
-    icon: MessageSquare,
+    icon: CreditCard,
   },
 ];
 
@@ -79,18 +86,18 @@ const secondaryNavItems = [
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { isPending, data } = useAllUserDocuments();
-  console.log("Current User:", user);
-  console.log({ data });
+  const { isSignedIn, user } = useUser();
+  const { data: documents } = useAllUserDocuments();
+  const { data: sessions, isPending } = useSessions();
+
+  const { setSessionId } = useSessionStore();
 
   return (
     <Sidebar collapsible="icon">
       {/* Header */}
       <SidebarHeader className="border-b px-4 py-3">
         <div className="flex items-center gap-3">
-          <Brain className="h-6 w-6" color="black" />
-
+          <Brain className="h-6 w-6 text-black" />
           <span className="font-semibold font-voegies text-xl md:text-2xl tracking-widest group-data-[collapsible=icon]:hidden">
             Studalis
           </span>
@@ -99,6 +106,7 @@ const AppSidebar = () => {
 
       {/* Content */}
       <SidebarContent>
+        {/* 1. Learn Group */}
         <SidebarGroup>
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
             Learn
@@ -110,61 +118,67 @@ const AppSidebar = () => {
                 const isActive =
                   pathname === item.url || pathname.startsWith(`${item.url}/`);
 
-                return (
-                  <SidebarMenuItem key={item.title} className="mt-2">
-                    <SidebarMenuButton isActive={isActive} tooltip={item.title}>
-                      {item.title === "Documents" ? (
-                        <>
-                          <DropdownMenu>
-                            {" "}
-                            <DropdownMenuTrigger
-                              render={
-                                <button className="flex gap-2 items-center cursor-pointer">
-                                  <FolderOpen />
-                                  <span>Complex Menu</span>
-                                  {data && (
-                                    <span className="w-6 h-6 flex items-center justify-center text-center text-xs rounded-full bg-blue-700 text-white">
-                                      {data.length}
-                                    </span>
-                                  )}
-                                </button>
-                              }
-                            />
-                            <DropdownMenuContent className="w-44 text-sm">
-                              <DropdownMenuGroup>
-                                {" "}
-                                {data?.map((document: any) => (
-                                  <DropdownMenuItem key={document.id}>
-                                    <Link
-                                      href={`/dashboard${item.url}/${document.id}`}
-                                      className="flex items-center gap-2 text-xs"
-                                    >
-                                      <FileIcon />
-                                      <p className="truncate w-22">
-                                        {" "}
-                                        {document.title}
-                                      </p>
-                                      <DropdownMenuShortcut>
-                                        ⌘O
-                                      </DropdownMenuShortcut>
-                                    </Link>
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </>
-                      ) : (
-                        <Link
-                          href={item.url}
-                          className="flex items-center gap-2"
+                // Documents item with dynamic dropdown
+                if (item.title === "Documents") {
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            tooltip={item.title}
+                          >
+                            <item.icon />
+                            <span className="group-data-[collapsible=icon]:hidden">
+                              {item.title}
+                            </span>
+                            {documents && documents.length > 0 && (
+                              <span className="ml-auto w-5 h-5 flex items-center justify-center text-[10px] rounded-full bg-blue-700 text-white group-data-[collapsible=icon]:hidden">
+                                {documents.length}
+                              </span>
+                            )}
+                          </SidebarMenuButton>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent
+                          side="right"
+                          align="start"
+                          className="w-52 text-sm"
                         >
-                          <item.icon />
-                          <span className="group-data-[collapsible=icon]:hidden">
-                            {item.title}
-                          </span>
-                        </Link>
-                      )}
+                          <DropdownMenuGroup>
+                            {documents?.map((document: DocumentItem) => (
+                              <DropdownMenuItem key={document.id}>
+                                <Link
+                                  href={`${item.url}/${document.id}`}
+                                  className="flex items-center gap-2 text-xs w-full cursor-pointer"
+                                >
+                                  <FileIcon className="h-4 w-4 shrink-0" />
+                                  <span className="truncate flex-1">
+                                    {document.title}
+                                  </span>
+                                  <DropdownMenuShortcut>
+                                    ⌘O
+                                  </DropdownMenuShortcut>
+                                </Link>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </SidebarMenuItem>
+                  );
+                }
+
+                // Standard navigation items
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton isActive={isActive} tooltip={item.title}>
+                      <Link href={item.url} className="flex items-center gap-2">
+                        <item.icon />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          {item.title}
+                        </span>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -172,7 +186,63 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <hr className="my-2 w-11/12 mx-auto" />
+
+        <hr className="my-1 w-11/12 mx-auto" />
+
+        {/* 2. Sessions Group */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+            Sessions
+          </SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {/* Main Sessions Overview Link */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/sessions"}
+                  tooltip="All Sessions"
+                >
+                  <Link href="/sessions" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span className="group-data-[collapsible=icon]:hidden">
+                      All Sessions
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Dynamic Mapped Sessions */}
+              {sessions?.map((session: any) => {
+                const isSessionActive = pathname === `/sessions/${session.id}`;
+
+                return (
+                  <SidebarMenuItem key={session.id}>
+                    <SidebarMenuButton
+                      isActive={isSessionActive}
+                      tooltip={session.title}
+                      onClick={() => setSessionId(session.id)}
+                    >
+                      <Link
+                        href={`/sessions/${session.id}`}
+                        className="flex items-center gap-2 text-xs"
+                      >
+                        <MessageSquare className="h-4 w-4 shrink-0" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">
+                          {session.title}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <hr className="my-1 w-11/12 mx-auto" />
+
+        {/* 3. System Group */}
         <SidebarGroup>
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
             System
@@ -226,11 +296,13 @@ const AppSidebar = () => {
 
                   <div className="flex flex-1 flex-col text-left text-sm group-data-[collapsible=icon]:hidden">
                     <span className="truncate font-medium">
-                      {isSignedIn && user?.fullName}
+                      {isSignedIn ? user?.fullName : "Guest"}
                     </span>
 
                     <span className="truncate text-xs text-muted-foreground">
-                      {isSignedIn && user?.emailAddresses?.[0]?.emailAddress}
+                      {isSignedIn
+                        ? user?.emailAddresses?.[0]?.emailAddress
+                        : ""}
                     </span>
                   </div>
 
@@ -247,13 +319,12 @@ const AppSidebar = () => {
                   <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="text-red-500 hover:bg-red-50">
+                <DropdownMenuItem className="text-red-500 focus:bg-red-50 focus:text-red-600 cursor-pointer">
                   <SignOutButton>
-                    <button className="flex items-center gap-2 w-full">
-                      {" "}
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Log Out
-                    </button>
+                    <div className="flex items-center gap-2 w-full">
+                      <LogOut className="h-4 w-4" />
+                      <span>Log Out</span>
+                    </div>
                   </SignOutButton>
                 </DropdownMenuItem>
               </DropdownMenuContent>
