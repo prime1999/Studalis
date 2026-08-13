@@ -29,8 +29,6 @@ export default function Page() {
 
   const { data: session } = useSession(documentId);
 
-  console.log(session);
-
   useEffect(() => {
     if (document?.id) {
       setDocumentId(document.id);

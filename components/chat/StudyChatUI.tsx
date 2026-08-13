@@ -128,7 +128,7 @@ const StudyChatUI = () => {
 
   return (
     <MessageScrollerProvider>
-      <Card className="flex h-full w-full flex-col gap-0 rounded-none border-none shadow-none">
+      <Card className="flex h-full w-full flex-col gap-0 rounded-md border-none shadow-none">
         {/* Header */}
         <CardHeader className="flex-row items-center justify-between border-b px-4 py-3">
           <CardTitle className="text-base font-semibold">Studalis</CardTitle>
@@ -201,7 +201,7 @@ const StudyChatUI = () => {
                 placeholder="Ask Studalis..."
                 disabled={isPending}
                 rows={1}
-                className="min-h-[44px] flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50"
+                className="min-h-[44px] flex-1 resize-none bg-transparent pl-1 pr-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50"
               />
               <InputGroupAddon align="block-end" className="p-1">
                 <InputGroupButton
@@ -209,7 +209,7 @@ const StudyChatUI = () => {
                   variant="default"
                   size="icon-sm"
                   disabled={!input.trim() || isPending}
-                  className="ml-auto"
+                  className="ml-auto rounded-full cursor-pointer"
                 >
                   <ArrowUpIcon className="h-4 w-4" />
                   <span className="sr-only">Send</span>

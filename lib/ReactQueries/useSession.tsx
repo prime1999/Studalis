@@ -53,6 +53,16 @@ const updateCurrentPage = async ({
   return res.json();
 };
 
+const getSessions = async () => {
+  const res = await fetch("/api/sessions");
+
+  if (!res.ok) {
+    throw new Error("Failed to load sessions");
+  }
+
+  return res.json();
+};
+
 //-------------------------------- HOOKS -------------------------//
 export function useSession(documentId: string) {
   return useQuery({
@@ -71,5 +81,12 @@ export function useCreateSession() {
 export function useUpdateCurrentPage() {
   return useMutation({
     mutationFn: updateCurrentPage,
+  });
+}
+
+export function useSessions() {
+  return useQuery({
+    queryKey: ["sessions"],
+    queryFn: getSessions,
   });
 }
