@@ -12,22 +12,22 @@ const PdfViewer = dynamic(() => import("@/components/dashboard/PdfViewer"), {
   ssr: false,
 });
 
-export default function Page() {
+const Page = () => {
   const { setDocumentId } = useDocumentStore();
   const { setSessionId } = useSessionStore();
   const params = useParams();
 
-  const documentId = params.documentId as string;
+  const sessionId = params.sessionId as string;
+  const { data: session, isPending } = useSession(sessionId);
+  const documentId = session?.documentId as string | undefined;
 
   const { data: document, isPending: loadingDocument } = useDocument(
-    documentId as string,
+    documentId ?? "",
   );
 
   const { data: pdfUrl, isPending: loadingPdf } = useDocumentUrl(
-    documentId as string,
+    documentId ?? "",
   );
-
-  const { data: session } = useSession(documentId);
 
   useEffect(() => {
     if (document?.id) {
@@ -36,12 +36,20 @@ export default function Page() {
     if (session?.id) {
       setSessionId(session.id);
     }
-  }, [document?.id, setDocumentId, session?.id]);
+  }, [document?.id, session?.id, setDocumentId, setSessionId]);
 
-  if (loadingDocument || loadingPdf) {
+  if (isPending || loadingDocument || loadingPdf) {
     return (
       <div className="flex h-full min-h-0 items-center justify-center">
         Loading...
+      </div>
+    );
+  }
+
+  if (!session || !document || !pdfUrl) {
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center">
+        Session not found.
       </div>
     );
   }
@@ -58,4 +66,6 @@ export default function Page() {
       />
     </main>
   );
-}
+};
+
+export default Page;

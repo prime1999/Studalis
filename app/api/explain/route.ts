@@ -44,6 +44,7 @@ export async function POST(req: Request) {
     const session = await getOrCreateSession({
       userId,
       documentId,
+      title: document.title,
     });
 
     const chunks: any = await searchSimilarChunks(question, documentId);

@@ -37,6 +37,7 @@ export async function POST(req: Request) {
 
     const session = await getOrCreateSession({
       userId,
+      title: document.title,
       documentId,
     });
 

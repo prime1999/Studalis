@@ -1,8 +1,8 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 // ---------------------- HELPER FUNCTIONS ---------------------- //
-const getSession = async (documentId: string) => {
-  const res = await fetch(`/api/sessions/${documentId}`);
+const getSession = async (sessionId: string) => {
+  const res = await fetch(`/api/sessions/${sessionId}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch session");
@@ -11,7 +11,13 @@ const getSession = async (documentId: string) => {
   return res.json();
 };
 
-const createSession = async (documentId: string, title: string) => {
+const createSession = async ({
+  documentId,
+  title,
+}: {
+  documentId: string;
+  title?: string;
+}) => {
   const res = await fetch("/api/sessions/create", {
     method: "POST",
     headers: {
@@ -65,11 +71,11 @@ const getSessions = async () => {
 };
 
 //-------------------------------- HOOKS -------------------------//
-export function useSession(documentId: string) {
+export function useSession(sessionId: string) {
   return useQuery({
-    queryKey: ["session", documentId],
-    queryFn: () => getSession(documentId),
-    enabled: !!documentId,
+    queryKey: ["session", sessionId],
+    queryFn: () => getSession(sessionId),
+    enabled: !!sessionId,
   });
 }
 

@@ -61,7 +61,7 @@ const mainNavItems = [
   },
   {
     title: "Documents",
-    url: "/documents",
+    url: "/dashboard/documents",
     icon: FolderOpen,
   },
   {
@@ -127,6 +127,7 @@ const AppSidebar = () => {
                           <SidebarMenuButton
                             isActive={isActive}
                             tooltip={item.title}
+                            className="w-full cursor-pointer"
                           >
                             <item.icon />
                             <span className="group-data-[collapsible=icon]:hidden">
@@ -197,24 +198,10 @@ const AppSidebar = () => {
 
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Main Sessions Overview Link */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={pathname === "/sessions"}
-                  tooltip="All Sessions"
-                >
-                  <Link href="/sessions" className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span className="group-data-[collapsible=icon]:hidden">
-                      All Sessions
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
               {/* Dynamic Mapped Sessions */}
               {sessions?.map((session: any) => {
-                const isSessionActive = pathname === `/sessions/${session.id}`;
+                const isSessionActive =
+                  pathname === `/dashboard/sessions/${session.id}`;
 
                 return (
                   <SidebarMenuItem key={session.id}>
@@ -224,7 +211,7 @@ const AppSidebar = () => {
                       onClick={() => setSessionId(session.id)}
                     >
                       <Link
-                        href={`/sessions/${session.id}`}
+                        href={`/dashboard/sessions/${session.id}`}
                         className="flex items-center gap-2 text-xs"
                       >
                         <MessageSquare className="h-4 w-4 shrink-0" />

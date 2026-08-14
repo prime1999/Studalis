@@ -55,7 +55,7 @@ export async function extractPdfText(buffer: Buffer) {
     data: new Uint8Array(buffer),
     useSystemFonts: true,
     disableFontFace: true, // Prevents canvas dependency issues on Node
-    isEvalSupported: false, // Prevents fake worker dynamic import crash
+    /// isEvalSupported: false, // Prevents fake worker dynamic import crash
   });
 
   const pdf = await loadingTask.promise;

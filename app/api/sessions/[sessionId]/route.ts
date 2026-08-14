@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 interface Params {
   params: Promise<{
-    documentId: string;
+    sessionId: string;
   }>;
 }
 
@@ -15,12 +15,12 @@ export async function GET(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { documentId } = await params;
+  const { sessionId } = await params;
 
   const session = await prisma.studySession.findFirst({
     where: {
       userId,
-      documentId,
+      id: sessionId,
     },
   });
 
