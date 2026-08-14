@@ -59,6 +59,19 @@ export async function POST(req: Request) {
       title: document.title,
     });
 
+    // get recent Messages
+    const recentMessages = await prisma.chatMessage.findMany({
+      where: {
+        sessionId: session.id,
+      },
+
+      orderBy: {
+        createdAt: "asc",
+      },
+
+      take: 10,
+    });
+
     // Save user message
     await prisma.chatMessage.create({
       data: {
@@ -68,16 +81,25 @@ export async function POST(req: Request) {
       },
     });
 
+    const conversationContext = recentMessages
+      .map((m) => `${m.role}: ${m.content}`)
+      .join("\n");
+
     // Retrieve relevant chunks
-    const chunks: any = await searchSimilarChunks(message, documentId);
+    const chunks: any = await searchSimilarChunks(message, documentId, 5);
 
     const context = chunks.map((chunk: any) => chunk.content).join("\n\n");
+    const prompt = `
+Previous Conversation:
 
-    const prompt = buildStudyPrompt({
-      action,
-      context,
-      message,
-    });
+${conversationContext}
+
+${buildStudyPrompt({
+  action,
+  context,
+  message,
+})}
+`;
 
     const result = await ai.models.generateContent({
       model: "gemini-3.5-flash",

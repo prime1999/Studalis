@@ -4,7 +4,7 @@ import { createEmbedding } from "../embeddings";
 export async function searchSimilarChunks(
   question: string,
   documentId: string,
-  limit = 5,
+  limit: number,
 ) {
   const embedding = await createEmbedding(question);
 
