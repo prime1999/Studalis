@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI, Content } from "@google/genai";
 import { auth } from "@clerk/nextjs/server";
+import { waitUntil } from "@vercel/functions";
 
 import { prisma } from "@/lib/prisma";
 import { toolDefinitions } from "@/lib/ai/tools/tool-definitions";
@@ -9,12 +10,14 @@ import {
   buildStudyPrompt,
   StudyAction,
 } from "@/lib/prompts/build-study-prompts";
+import { recordTopicEvent, MemoryEventType } from "@/lib/memory/record-events";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
 const MAX_TOOL_CALLS = 10;
+const MAX_MESSAGE_CHARACTERS = 3000; // Truncates overly large text selections or dumps
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,48 +41,91 @@ export async function POST(req: NextRequest) {
 
     if (!message || !documentId || !sessionId) {
       return NextResponse.json(
-        {
-          error: "Missing message, documentId, or sessionId",
-        },
+        { error: "Missing message, documentId, or sessionId" },
         { status: 400 },
       );
     }
 
     if (!userId) {
-      return NextResponse.json(
-        {
-          error: "Unauthorized",
-        },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     /**
-     * Get latest conversation history
+     * 1. Fetch latest conversation history with field selection to minimize payload
      */
     const recentMessages = await prisma.chatMessage.findMany({
-      where: {
-        sessionId,
+      where: { sessionId },
+      select: {
+        role: true,
+        content: true,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
       take: 10,
     });
 
     recentMessages.reverse();
 
     /**
-     * Build study prompt
+     * 2. Fetch recent TopicMemory including frequency/times studied
      */
-    const formattedUserPrompt = buildStudyPrompt({
-      action,
-      context,
-      message,
+    const recentMemory = await prisma.topicMemory.findMany({
+      where: { userId },
+      select: {
+        topic: true,
+        lastInteractionType: true,
+        //timesStudied: true,
+      },
+      orderBy: { lastStudiedAt: "desc" },
+      take: 5,
     });
 
+    const memoryBlock =
+      recentMemory.length > 0
+        ? `<student_memory>\nRecently & Frequently Studied Topics:\n${recentMemory
+            .map(
+              (m) =>
+                `- Topic: "${m.topic}" | Last event: ${m.lastInteractionType || "EXPLAIN"}`,
+            )
+            .join("\n")}\n</student_memory>\n\n`
+        : "";
+
     /**
-     * Build conversation contents
+     * 3. Truncate user prompt if context exceeds limits
+     */
+    const safeMessage =
+      message.length > MAX_MESSAGE_CHARACTERS
+        ? `${message.slice(0, MAX_MESSAGE_CHARACTERS)}... [truncated]`
+        : message;
+
+    const formattedUserPrompt = `${memoryBlock}${buildStudyPrompt({
+      action,
+      context,
+      message: safeMessage,
+    })}`;
+
+    /**
+     * 4. Action-based event classification
+     */
+    let primaryEventType: MemoryEventType | null = null;
+    if (action === "EXPLAIN") {
+      primaryEventType = "EXPLAIN_REQUEST";
+    }
+
+    if (primaryEventType) {
+      waitUntil(
+        recordTopicEvent({
+          userId,
+          documentId,
+          rawQuery: safeMessage,
+          event: primaryEventType,
+        }).catch((err: any) =>
+          console.error("[memory-event] Background log failed:", err),
+        ),
+      );
+    }
+
+    /**
+     * 5. Build conversation contents
      */
     const contents: Content[] = [
       ...recentMessages.map((msg) => ({
@@ -93,27 +139,24 @@ export async function POST(req: NextRequest) {
     ];
 
     /**
-     * Save raw user message
+     * 6. Save raw user message
      */
     await prisma.chatMessage.create({
       data: {
         sessionId,
         role: "user",
-        content: message,
+        content: safeMessage,
       },
     });
 
     /**
-     * Tool handlers
+     * 7. Tool handlers
      */
     const handlers = buildToolHandlers({
       userId,
       documentId,
     });
 
-    /**
-     * System instruction
-     */
     const systemInstruction = `
 You are Studalis, an AI study companion.
 
@@ -129,67 +172,45 @@ You have access to tools that can:
 - Access learning information
 
 Tool Rules:
-
 1. Use tools whenever necessary to answer accurately.
+2. After every tool execution analyze and explain the results.
+3. Include Markdown links for note creation.
+4. Never stop after calling a tool or return raw tool output.
+5. Prioritize document information when available.
+6. Be educational, supportive, and concise.
 
-2. After every tool execution:
-   - Analyze the result
-   - Explain what you found
-   - Explain what was created or retrieved
-
-3. Note Creation & Navigation Links:
-   - When calling 'createNote', if the result returns status "CREATED" or "ALREADY_EXISTS" with a "link" or "noteId" property, you MUST include a Markdown link so the user can navigate to it directly.
-   - Format link explicitly as: [View Note](LINK_PROPERTY_VALUE)
-   - Example when created: "I have created your note **'Photosynthesis'**. You can access it here: [View Note](/notes/clx123456)."
-   - Example when already exists: "The note **'Photosynthesis'** already exists in your library. You can view it here: [View Note](/notes/clx123456)."
-
-4. Never stop after calling a tool.
-
-5. Never return only raw tool output.
-
-6. Always provide a helpful response to the student.
-
-7. Combine results from multiple tools into one coherent answer.
-
-8. Follow formatting requirements from the current study action.
-
-9. Prioritize document information when available.
-
-10. If document information is insufficient, use general academic knowledge.
-
-11. Be educational, supportive, and concise.
+Proactive Memory & Student Support Rules:
+1. Carefully check the <student_memory> block provided in the user prompt.
+2. If the user is asking about or explaining a topic that they have reviewed 2 or more times (or if it appears in their memory history as frequently studied):
+   - Proactively acknowledge this repetition in a warm, encouraging way (e.g., "I notice you've asked about [Topic] a few times now—let's look at this from a fresh angle!").
+   - Offer tailored follow-up options to clarify the concept, such as:
+     * Using a real-world analogy or simplified diagram.
+     * Generating a quick 2-question quiz or flashcards to test understanding.
+     * Breaking the topic down into step-by-step plain language.
 `;
+
     /**
-     * Initial model call
+     * 8. Initial model call
      */
     let response = await ai.models.generateContent({
       model: "gemini-3.1-flash-lite",
       contents,
       config: {
         systemInstruction,
-        tools: [
-          {
-            functionDeclarations: toolDefinitions,
-          },
-        ],
+        tools: [{ functionDeclarations: toolDefinitions }],
       },
     });
 
-    const executedTools: Array<{
-      name: string;
-      output: unknown;
-    }> = [];
-
+    const executedTools: Array<{ name: string; output: unknown }> = [];
     let toolCallCount = 0;
 
     /**
-     * Tool execution loop
+     * 9. Tool execution loop
      */
     while (response.functionCalls?.length && toolCallCount < MAX_TOOL_CALLS) {
       toolCallCount++;
 
       const modelContent = response.candidates?.[0]?.content;
-
       if (modelContent) {
         contents.push(modelContent);
       }
@@ -198,17 +219,11 @@ Tool Rules:
 
       for (const call of response.functionCalls) {
         const toolName = call.name;
-
-        if (!toolName) {
-          throw new Error("Function call missing tool name");
-        }
+        if (!toolName) throw new Error("Function call missing tool name");
 
         const handler = (handlers as Record<string, Function>)[toolName];
-
-        if (!handler) {
-          throw new Error(`No handler found for tool: ${toolName}`);
-        }
-
+        if (!handler) throw new Error(`No handler found for tool: ${toolName}`);
+        console.log("[TOOL CALL]", toolName, call.args);
         const toolOutput = await handler(call.args ?? {});
 
         executedTools.push({
@@ -216,13 +231,29 @@ Tool Rules:
           output: toolOutput,
         });
 
+        let toolEventType: MemoryEventType | null = null;
+        if (toolName === "createNote") toolEventType = "NOTE_CREATED";
+        if (toolName === "generateFlashcards")
+          toolEventType = "FLASHCARD_CREATED";
+        if (toolName === "generateQuiz") toolEventType = "QUIZ_WRONG";
+
+        if (toolEventType) {
+          waitUntil(
+            recordTopicEvent({
+              userId,
+              documentId,
+              rawQuery: safeMessage,
+              event: toolEventType,
+            }).catch((err: any) =>
+              console.error("[tool-memory-event] Failed:", err),
+            ),
+          );
+        }
+
         functionResponseParts.push({
           functionResponse: {
             name: toolName,
-            response: {
-              success: true,
-              data: toolOutput,
-            },
+            response: { success: true, data: toolOutput },
           },
         });
       }
@@ -232,20 +263,14 @@ Tool Rules:
         parts: functionResponseParts,
       });
 
-      /**
-       * Force explanation after tool execution
-       */
       contents.push({
         role: "user",
         parts: [
           {
             text: `
 The tool execution has completed.
-
 Analyze the results and provide a helpful response to the student.
-
 Do not return raw tool output.
-
 Only call another tool if absolutely necessary.
 `,
           },
@@ -257,11 +282,7 @@ Only call another tool if absolutely necessary.
         contents,
         config: {
           systemInstruction,
-          tools: [
-            {
-              functionDeclarations: toolDefinitions,
-            },
-          ],
+          tools: [{ functionDeclarations: toolDefinitions }],
         },
       });
     }
@@ -271,30 +292,23 @@ Only call another tool if absolutely necessary.
     }
 
     /**
-     * Final response text
+     * 10. Final response fallback & storage
      */
     let replyText = response.text?.trim();
 
-    /**
-     * Fallback response
-     */
     if (!replyText) {
       const toolMessages = executedTools
         .map((tool: any) => tool.output?.message)
         .filter(Boolean);
 
-      if (toolMessages.length > 0) {
-        replyText = toolMessages.join("\n");
-      } else if (executedTools.length > 0) {
-        replyText = "I completed the requested study action successfully.";
-      } else {
-        replyText = "I processed your request, but no response was generated.";
-      }
+      replyText =
+        toolMessages.length > 0
+          ? toolMessages.join("\n")
+          : executedTools.length > 0
+            ? "I completed the requested study action successfully."
+            : "I processed your request, but no response was generated.";
     }
 
-    /**
-     * Save assistant message
-     */
     await prisma.chatMessage.create({
       data: {
         sessionId,
@@ -303,19 +317,12 @@ Only call another tool if absolutely necessary.
       },
     });
 
-    return NextResponse.json({
-      reply: replyText,
-    });
+    return NextResponse.json({ reply: replyText });
   } catch (error: any) {
     console.error("[chat-route] POST error", error);
-
     return NextResponse.json(
-      {
-        error: error?.message ?? "Internal server error",
-      },
-      {
-        status: 500,
-      },
+      { error: error?.message ?? "Internal server error" },
+      { status: 500 },
     );
   }
 }

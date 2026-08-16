@@ -402,7 +402,8 @@ export const ModelName = {
   StudySession: 'StudySession',
   LearningInteraction: 'LearningInteraction',
   ChatMessage: 'ChatMessage',
-  Note: 'Note'
+  Note: 'Note',
+  TopicMemory: 'TopicMemory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "document" | "documentChunk" | "studySession" | "learningInteraction" | "chatMessage" | "note"
+    modelProps: "document" | "documentChunk" | "studySession" | "learningInteraction" | "chatMessage" | "note" | "topicMemory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -866,6 +867,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TopicMemory: {
+      payload: Prisma.$TopicMemoryPayload<ExtArgs>
+      fields: Prisma.TopicMemoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TopicMemoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TopicMemoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>
+        }
+        findFirst: {
+          args: Prisma.TopicMemoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TopicMemoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>
+        }
+        findMany: {
+          args: Prisma.TopicMemoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>[]
+        }
+        create: {
+          args: Prisma.TopicMemoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>
+        }
+        createMany: {
+          args: Prisma.TopicMemoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TopicMemoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>[]
+        }
+        delete: {
+          args: Prisma.TopicMemoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>
+        }
+        update: {
+          args: Prisma.TopicMemoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.TopicMemoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TopicMemoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TopicMemoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.TopicMemoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TopicMemoryPayload>
+        }
+        aggregate: {
+          args: Prisma.TopicMemoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTopicMemory>
+        }
+        groupBy: {
+          args: Prisma.TopicMemoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopicMemoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TopicMemoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TopicMemoryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -977,6 +1052,28 @@ export const NoteScalarFieldEnum = {
 } as const
 
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
+
+
+export const TopicMemoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  topic: 'topic',
+  studyCount: 'studyCount',
+  explainRequests: 'explainRequests',
+  notesCreated: 'notesCreated',
+  flashcardsCreated: 'flashcardsCreated',
+  quizzesTaken: 'quizzesTaken',
+  quizCorrect: 'quizCorrect',
+  quizWrong: 'quizWrong',
+  lastInteractionType: 'lastInteractionType',
+  lastTopicQuestion: 'lastTopicQuestion',
+  lastStudiedAt: 'lastStudiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopicMemoryScalarFieldEnum = (typeof TopicMemoryScalarFieldEnum)[keyof typeof TopicMemoryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1251,6 +1348,7 @@ export type GlobalOmitConfig = {
   learningInteraction?: Prisma.LearningInteractionOmit
   chatMessage?: Prisma.ChatMessageOmit
   note?: Prisma.NoteOmit
+  topicMemory?: Prisma.TopicMemoryOmit
 }
 
 /* Types for Logging */

@@ -71,3 +71,8 @@ export type ChatMessage = Prisma.ChatMessageModel
  * 
  */
 export type Note = Prisma.NoteModel
+/**
+ * Model TopicMemory
+ * 
+ */
+export type TopicMemory = Prisma.TopicMemoryModel

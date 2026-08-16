@@ -56,7 +56,8 @@ export const ModelName = {
   StudySession: 'StudySession',
   LearningInteraction: 'LearningInteraction',
   ChatMessage: 'ChatMessage',
-  Note: 'Note'
+  Note: 'Note',
+  TopicMemory: 'TopicMemory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -147,6 +148,28 @@ export const NoteScalarFieldEnum = {
 } as const
 
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
+
+
+export const TopicMemoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  topic: 'topic',
+  studyCount: 'studyCount',
+  explainRequests: 'explainRequests',
+  notesCreated: 'notesCreated',
+  flashcardsCreated: 'flashcardsCreated',
+  quizzesTaken: 'quizzesTaken',
+  quizCorrect: 'quizCorrect',
+  quizWrong: 'quizWrong',
+  lastInteractionType: 'lastInteractionType',
+  lastTopicQuestion: 'lastTopicQuestion',
+  lastStudiedAt: 'lastStudiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TopicMemoryScalarFieldEnum = (typeof TopicMemoryScalarFieldEnum)[keyof typeof TopicMemoryScalarFieldEnum]
 
 
 export const SortOrder = {

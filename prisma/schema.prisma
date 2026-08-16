@@ -99,3 +99,28 @@ model Note {
 
   createdAt DateTime @default(now())
 }
+
+model TopicMemory {
+  id                  String   @id @default(cuid())
+  userId              String
+  documentId          String?
+
+  topic               String
+
+  studyCount          Int      @default(0)
+  explainRequests     Int      @default(0)
+  notesCreated        Int      @default(0)
+  flashcardsCreated   Int      @default(0)
+  quizzesTaken        Int      @default(0)
+  quizCorrect         Int      @default(0)
+  quizWrong           Int      @default(0)
+
+  lastInteractionType String?
+  lastTopicQuestion   String?
+
+  lastStudiedAt       DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  
+}

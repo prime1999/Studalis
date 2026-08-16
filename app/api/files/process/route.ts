@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { chunkText } from "@/lib/chunk-text";
 import { createEmbedding } from "@/lib/embeddings";
+import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
 
 export const runtime = "nodejs";
 
@@ -91,8 +92,17 @@ export async function POST(req: Request) {
     },
   });
 
+  // create the session
+  const session = await getOrCreateSession({
+    userId,
+    documentId,
+    title: document.title,
+  });
+
   return Response.json({
     jsonKey,
     success: true,
+    documentId: document.id,
+    sessionId: session.id,
   });
 }
