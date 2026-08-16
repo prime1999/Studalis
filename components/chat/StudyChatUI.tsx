@@ -97,6 +97,7 @@ const StudyChatUI = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          sessionId,
           documentId,
           message: messageText,
           action,
@@ -106,11 +107,12 @@ const StudyChatUI = () => {
       if (!res.ok) throw new Error("Failed to send message");
 
       const data = await res.json();
+      console.log({ data });
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: data.answer ?? "I couldn't generate a response.",
+        content: data.reply ?? "I couldn't generate a response.",
       };
 
       setLocalMessages((prev) => [...prev, assistantMessage]);

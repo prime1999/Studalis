@@ -55,16 +55,14 @@ const Page = () => {
   }
 
   return (
-    <main className="col-span-2 flex h-full min-h-0 flex-col">
-      <PdfViewer
-        file={{
-          id: document.id,
-          key: document.pdfKey,
-          fileName: document.title,
-          fileUrl: pdfUrl.url,
-        }}
-      />
-    </main>
+    <PdfViewer
+      file={{
+        id: document.id,
+        key: document.pdfKey,
+        fileName: document.title,
+        fileUrl: pdfUrl.url,
+      }}
+    />
   );
 };
 

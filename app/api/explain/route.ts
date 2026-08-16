@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       title: document.title,
     });
 
-    const chunks: any = await searchSimilarChunks(question, documentId);
+    const chunks: any = await searchSimilarChunks(question, documentId, 5);
 
     const context = chunks.map((chunk: any) => chunk.content).join("\n\n");
 

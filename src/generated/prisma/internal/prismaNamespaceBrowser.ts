@@ -55,7 +55,8 @@ export const ModelName = {
   DocumentChunk: 'DocumentChunk',
   StudySession: 'StudySession',
   LearningInteraction: 'LearningInteraction',
-  ChatMessage: 'ChatMessage'
+  ChatMessage: 'ChatMessage',
+  Note: 'Note'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -133,6 +134,19 @@ export const ChatMessageScalarFieldEnum = {
 } as const
 
 export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum]
+
+
+export const NoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  documentId: 'documentId',
+  sessionId: 'sessionId',
+  title: 'title',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -33,7 +33,7 @@ export default function TurnTimeline({ messages }: TurnTimelineProps) {
 
   return (
     <TooltipProvider>
-      <aside className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2 rounded-full bg-background/60 p-1.5 backdrop-blur-md border border-border/50 shadow-sm">
+      <aside className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2 rounded-full bg-background/60 p-1.5 backdrop-blur-md border border-border/50 shadow-sm overflow-auto">
         {userMessages.map((msg, index) => {
           // Check if this user turn is currently the active anchor OR visible on screen
           const isAnchored = msg.id === currentAnchorId;

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
-import { useSessions } from "@/lib/ReactQueries/useSession";
+import { useNotes, useSessions } from "@/lib/ReactQueries/useSession";
 import { useSessionStore } from "@/store/session-store";
 import {
   BookOpen,
@@ -41,6 +41,8 @@ import {
   DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
 import { useAllUserDocuments } from "@/lib/ReactQueries/getDocument";
+import { useNoteStore } from "@/store/note-store";
+import { useDocumentStore } from "@/store/document-store";
 
 // Define interfaces for dynamic data
 interface DocumentItem {
@@ -89,8 +91,14 @@ const AppSidebar = () => {
   const { isSignedIn, user } = useUser();
   const { data: documents } = useAllUserDocuments();
   const { data: sessions, isPending } = useSessions();
+  const { data: notes, isPending: loadingNotes } = useNotes(
+    useDocumentStore((state) => state.documentId) || "",
+  );
 
   const { setSessionId } = useSessionStore();
+  const { setNoteId } = useNoteStore();
+
+  console.log({ notes });
 
   return (
     <Sidebar collapsible="icon">
@@ -217,6 +225,43 @@ const AppSidebar = () => {
                         <MessageSquare className="h-4 w-4 shrink-0" />
                         <span className="truncate group-data-[collapsible=icon]:hidden">
                           {session.title}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <hr className="my-1 w-11/12 mx-auto" />
+        {/* 3. Notes Group */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+            Notes
+          </SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {/* Dynamic Mapped Sessions */}
+              {notes?.notes?.map((note: any) => {
+                const isNoteActive =
+                  pathname === `/dashboard/sessions/${note.id}`;
+
+                return (
+                  <SidebarMenuItem key={note.id}>
+                    <SidebarMenuButton
+                      isActive={isNoteActive}
+                      tooltip={note.title}
+                      onClick={() => setNoteId(note.id)}
+                    >
+                      <Link
+                        href={`/dashboard/sessions/${note.id}`}
+                        className="flex items-center gap-2 text-xs"
+                      >
+                        <MessageSquare className="h-4 w-4 shrink-0" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">
+                          {note.title}
                         </span>
                       </Link>
                     </SidebarMenuButton>

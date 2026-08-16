@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+
+import { prisma } from "@/lib/prisma";
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ documentId: string }> },
+) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { documentId } = await params;
+
+    const notes = await prisma.note.findMany({
+      where: {
+        userId,
+        documentId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json({
+      notes,
+    });
+  } catch (error) {
+    console.error("[GET_NOTES_ERROR]", error);
+
+    return NextResponse.json(
+      { error: "Failed to fetch notes" },
+      { status: 500 },
+    );
+  }
+}

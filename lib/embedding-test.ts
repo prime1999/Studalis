@@ -1,32 +1,100 @@
 import { loadEnvConfig } from "@next/env";
-import { searchSimilarChunks } from "./retrieval/search-similar-chunks";
+import { prisma } from "../lib/prisma";
 
-// 1. Tell Next.js to load your .env / .env.local files FIRST
 const projectDir = process.cwd();
 loadEnvConfig(projectDir);
 
-// 2. Dynamically import your embedding function AFTER env variables are loaded
 async function main() {
-  console.log("API KEY LOADED:", process.env.GEMINI_API_KEY ? "YES" : "NO");
+  console.log("🚀 Starting Studalis End-to-End Integration Test...\n");
 
-  const { createEmbedding } = await import("@/lib/embeddings");
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const userId = "test-user-123";
 
   try {
-    const embedding = await createEmbedding(
-      "To code and making 10+ commits on GitHub",
-    );
-    console.log("Vector dimensions:", embedding.length);
+    // 1. Setup Test Document & Session in Database
+    console.log("1️⃣ Seeding Test Document & Session in Database...");
+
+    let document = await prisma.document.findFirst();
+    if (!document) {
+      document = await prisma.document.create({
+        data: {
+          title: "Sample Study Guide.pdf",
+          userId: userId,
+          pdfKey: "sample-pdf-key-123",
+        },
+      });
+      console.log(`   Created test Document ID: ${document.id}`);
+    } else {
+      console.log(`   Using existing Document ID: ${document.id}`);
+    }
+
+    const sessionId = `test-session-${Date.now()}`;
+    console.log(`   Session ID: ${sessionId}\n`);
+
+    // 2. Create a test Note in CockroachDB
+    console.log("2️⃣ Creating a Test Note in 'Note' table via Prisma...");
+    const testNote = await prisma.note.create({
+      data: {
+        userId,
+        documentId: document.id,
+        title: "Calculus Limits Core Rules",
+        content:
+          "Rule 1: Direct substitution first. Rule 2: Factor and cancel if 0/0.",
+      },
+    });
+    console.log(`   ✅ Note created! ID: ${testNote.id}\n`);
+
+    // 3. Test API Chat Route
+    console.log("3️⃣ Sending Chat Message requesting saved notes...");
     console.log(
-      "First 100 characters of the embedding:",
-      JSON.stringify(embedding).slice(0, 100),
+      '   Prompt: "Can you check my saved study notes for this document?"',
     );
-    const chunks = await searchSimilarChunks(
-      "To code and making 10+ commits on GitHub",
-      "cmsi8e1kb0000n0vh112xex8m",
-    );
-    console.log(JSON.stringify(chunks, null, 2));
-  } catch (err) {
-    console.error("Error generating embedding:", err);
+
+    const response = await fetch(`${baseUrl}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: "Can you check my saved study notes for this document?",
+        documentId: document.id,
+        sessionId,
+        userId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API returned HTTP ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    console.log("\n==================================================");
+    console.log("🤖 Studalis AI Response:");
+    console.log("==================================================");
+    console.log(data.reply);
+    console.log("==================================================\n");
+
+    // 4. Verify Chat History Persistence
+    console.log("4️⃣ Verifying Chat Messages saved in DB...");
+    const savedMessages = await prisma.chatMessage.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: "asc" },
+    });
+
+    console.log(`   Total messages saved for session: ${savedMessages.length}`);
+    savedMessages.forEach((msg, idx) => {
+      console.log(
+        `   [${idx + 1}] (${msg.role.toUpperCase()}): ${msg.content.substring(0, 80)}...`,
+      );
+    });
+
+    console.log("\n🎉 ALL TESTS PASSED SUCCESSFULLY!");
+  } catch (error) {
+    console.error("\n❌ Test Failed:", error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 

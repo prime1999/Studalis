@@ -70,6 +70,16 @@ const getSessions = async () => {
   return res.json();
 };
 
+const getNotes = async ({ documentId }: { documentId: string }) => {
+  const res = await fetch(`/api/sessions/${documentId}/note`);
+
+  if (!res.ok) {
+    throw new Error("Failed to load notes");
+  }
+
+  return res.json();
+};
+
 //-------------------------------- HOOKS -------------------------//
 export function useSession(sessionId: string) {
   return useQuery({
@@ -97,3 +107,10 @@ export function useSessions() {
     queryFn: getSessions,
   });
 }
+
+export const useNotes = (documentId: string) => {
+  return useQuery({
+    queryKey: ["notes", documentId],
+    queryFn: () => getNotes({ documentId }),
+  });
+};
