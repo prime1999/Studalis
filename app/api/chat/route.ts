@@ -17,7 +17,7 @@ const ai = new GoogleGenAI({
 });
 
 const MAX_TOOL_CALLS = 10;
-const MAX_MESSAGE_CHARACTERS = 3000; // Truncates overly large text selections or dumps
+const MAX_MESSAGE_CHARACTERS = 3000;
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     }
 
     /**
-     * 1. Fetch latest conversation history with field selection to minimize payload
+     * 1. Fetch latest conversation history
      */
     const recentMessages = await prisma.chatMessage.findMany({
       where: { sessionId },
@@ -66,14 +66,14 @@ export async function POST(req: NextRequest) {
     recentMessages.reverse();
 
     /**
-     * 2. Fetch recent TopicMemory including frequency/times studied
+     * 2. Fetch recent TopicMemory including exact study counts
      */
     const recentMemory = await prisma.topicMemory.findMany({
       where: { userId },
       select: {
         topic: true,
         lastInteractionType: true,
-        //timesStudied: true,
+        studyCount: true,
       },
       orderBy: { lastStudiedAt: "desc" },
       take: 5,
@@ -81,10 +81,10 @@ export async function POST(req: NextRequest) {
 
     const memoryBlock =
       recentMemory.length > 0
-        ? `<student_memory>\nRecently & Frequently Studied Topics:\n${recentMemory
+        ? `<student_memory>\nStudent Study History:\n${recentMemory
             .map(
               (m) =>
-                `- Topic: "${m.topic}" | Last event: ${m.lastInteractionType || "EXPLAIN"}`,
+                `- Topic: "${m.topic}" | Times studied: ${m.studyCount || 1} | Last event: ${m.lastInteractionType || "EXPLAIN"}`,
             )
             .join("\n")}\n</student_memory>\n\n`
         : "";
@@ -180,13 +180,10 @@ Tool Rules:
 6. Be educational, supportive, and concise.
 
 Proactive Memory & Student Support Rules:
-1. Carefully check the <student_memory> block provided in the user prompt.
-2. If the user is asking about or explaining a topic that they have reviewed 2 or more times (or if it appears in their memory history as frequently studied):
-   - Proactively acknowledge this repetition in a warm, encouraging way (e.g., "I notice you've asked about [Topic] a few times now—let's look at this from a fresh angle!").
-   - Offer tailored follow-up options to clarify the concept, such as:
-     * Using a real-world analogy or simplified diagram.
-     * Generating a quick 2-question quiz or flashcards to test understanding.
-     * Breaking the topic down into step-by-step plain language.
+1. Check the <student_memory> block provided in the user prompt.
+2. STRICT RULE: ONLY acknowledge past study sessions if the SPECIFIC topic the student is CURRENTLY asking about exists in <student_memory> AND has a "Times studied" count of 2 or more.
+3. If the current question is about a new topic, or a topic with fewer than 2 study events, respond directly to the question WITHOUT mentioning past questions or previous study history.
+4. DO NOT make generic comments like "I notice you've been asking about general concepts". Be direct and focus strictly on the specific topic requested.
 `;
 
     /**
@@ -223,8 +220,9 @@ Proactive Memory & Student Support Rules:
 
         const handler = (handlers as Record<string, Function>)[toolName];
         if (!handler) throw new Error(`No handler found for tool: ${toolName}`);
-        console.log("[TOOL CALL]", toolName, call.args);
-        const toolOutput = await handler(call.args ?? {});
+
+        const toolArgs = (call.args as Record<string, any>) ?? {};
+        const toolOutput = await handler(toolArgs);
 
         executedTools.push({
           name: toolName,
@@ -235,14 +233,21 @@ Proactive Memory & Student Support Rules:
         if (toolName === "createNote") toolEventType = "NOTE_CREATED";
         if (toolName === "generateFlashcards")
           toolEventType = "FLASHCARD_CREATED";
-        if (toolName === "generateQuiz") toolEventType = "QUIZ_WRONG";
+        if (toolName === "generateQuiz") toolEventType = "QUIZ_GENERATED";
 
         if (toolEventType) {
+          const extractedSubject =
+            toolArgs.topic ||
+            toolArgs.title ||
+            toolArgs.subject ||
+            context ||
+            safeMessage;
+
           waitUntil(
             recordTopicEvent({
               userId,
               documentId,
-              rawQuery: safeMessage,
+              rawQuery: extractedSubject,
               event: toolEventType,
             }).catch((err: any) =>
               console.error("[tool-memory-event] Failed:", err),

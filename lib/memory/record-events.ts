@@ -6,7 +6,8 @@ export type MemoryEventType =
   | "NOTE_CREATED"
   | "FLASHCARD_CREATED"
   | "QUIZ_CORRECT"
-  | "QUIZ_WRONG";
+  | "QUIZ_WRONG"
+  | "QUIZ_GENERATED";
 
 export async function recordTopicEvent({
   userId,
