@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 //import { Plus, ArrowUp } from "lucide-react";
 import { ArrowUp, CircleX, File, Upload } from "lucide-react";
@@ -16,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import PdfViewer from "./PdfViewer";
 
 const UploadFile = () => {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFile, setUploadedFile] = useState<{
     key: string;
@@ -96,13 +98,21 @@ const UploadFile = () => {
       });
 
       // call the process api route
-      await fetch("/api/files/process", {
+      const result = await fetch("/api/files/process", {
         method: "POST",
         body: JSON.stringify({
           documentId: document.id,
           key,
         }),
       });
+
+      const resultData = await result.json();
+
+      if (!result.ok) {
+        throw new Error(resultData.error || "Failed to process file");
+      }
+
+      router.push(`/dashboard/sessions/${resultData.sessionId}`);
 
       // Later:
       // await fetch("/api/process-pdf", {

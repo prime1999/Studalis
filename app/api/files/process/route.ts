@@ -99,6 +99,8 @@ export async function POST(req: Request) {
     title: document.title,
   });
 
+  console.log("Session created or retrieved:", session);
+
   return Response.json({
     jsonKey,
     success: true,
