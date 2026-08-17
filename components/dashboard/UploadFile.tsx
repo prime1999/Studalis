@@ -26,6 +26,8 @@ const UploadFile = () => {
     fileUrl: string;
   } | null>(null);
   const [createdDocument, setCreatedDocument] = useState<any>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState("");
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -41,7 +43,8 @@ const UploadFile = () => {
       if (file.type !== "application/pdf") {
         throw new Error("Only PDF files are allowed");
       }
-
+      setIsProcessing(true);
+      setProcessingStep("Uploading file...");
       // Get presigned URL
       const res = await fetch("/api/upload-url", {
         method: "POST",
@@ -61,7 +64,7 @@ const UploadFile = () => {
       const { uploadUrl, key, document } = await res.json();
 
       setCreatedDocument(document);
-
+      setProcessingStep("Extracting PDF content...");
       // Upload to S3
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
@@ -86,17 +89,13 @@ const UploadFile = () => {
 
       const { fileUrl } = await viewRes.json();
 
-      console.log({ fileUrl });
-
-      console.log("Upload successful");
-      console.log("S3 Key:", key);
       setUploadedFile({
         key,
         fileName: file.name,
         fileType: file.type,
         fileUrl,
       });
-
+      setProcessingStep("Generating embeddings...");
       // call the process api route
       const result = await fetch("/api/files/process", {
         method: "POST",
@@ -105,7 +104,7 @@ const UploadFile = () => {
           key,
         }),
       });
-
+      setProcessingStep("Preparing study session...");
       const resultData = await result.json();
 
       if (!result.ok) {
@@ -131,16 +130,36 @@ const UploadFile = () => {
     setUploadedFile(null);
   };
 
-  if (uploadedFile && uploadedFile.fileUrl) {
+  // if (uploadedFile && uploadedFile.fileUrl) {
+  //   return (
+  //     <PdfViewer
+  //       file={{
+  //         id: createdDocument.id,
+  //         key: uploadedFile.key,
+  //         fileName: uploadedFile.fileName,
+  //         fileUrl: uploadedFile.fileUrl,
+  //       }}
+  //     />
+  //   );
+  // }
+
+  if (isProcessing) {
     return (
-      <PdfViewer
-        file={{
-          id: createdDocument.id,
-          key: uploadedFile.key,
-          fileName: uploadedFile.fileName,
-          fileUrl: uploadedFile.fileUrl,
-        }}
-      />
+      <main className="flex h-full w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-black border-t-transparent" />
+
+          <div className="text-center">
+            <h2 className="text-xl font-semibold">
+              Preparing your study session
+            </h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              {processingStep}
+            </p>
+          </div>
+        </div>
+      </main>
     );
   }
 
