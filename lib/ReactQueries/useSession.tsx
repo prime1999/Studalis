@@ -12,7 +12,8 @@ const getSession = async (sessionId: string) => {
 };
 
 const getSessionByDocId = async (documentId: string) => {
-  const res = await fetch(`/api/sessions/${documentId}`);
+  console.log({ documentId });
+  const res = await fetch(`/api/sessions/document/${documentId}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch session");

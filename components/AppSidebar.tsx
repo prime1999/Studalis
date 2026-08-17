@@ -64,7 +64,7 @@ const mainNavItems = [
   },
   {
     title: "Documents",
-    url: "/dashboard/documents",
+    url: "/dashboard/sessions/document",
     icon: FolderOpen,
   },
   {
