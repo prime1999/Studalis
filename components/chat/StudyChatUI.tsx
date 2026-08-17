@@ -107,7 +107,6 @@ const StudyChatUI = () => {
       if (!res.ok) throw new Error("Failed to send message");
 
       const data = await res.json();
-      console.log({ data });
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),

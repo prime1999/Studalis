@@ -67,8 +67,8 @@ const mainNavItems = [
     icon: FolderOpen,
   },
   {
-    title: "Cards",
-    url: "/cards",
+    title: "Insights",
+    url: "/insights",
     icon: CreditCard,
   },
 ];
