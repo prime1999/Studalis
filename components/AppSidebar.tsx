@@ -14,10 +14,11 @@ import {
   LogOut,
   ChevronUp,
   Brain,
-  CreditCard,
+  ScanEye,
   FileIcon,
   MessageSquare,
-  Clock,
+  NotebookText,
+  Layers,
 } from "lucide-react";
 import {
   Sidebar,
@@ -69,7 +70,7 @@ const mainNavItems = [
   {
     title: "Insights",
     url: "/insights",
-    icon: CreditCard,
+    icon: ScanEye,
   },
 ];
 
@@ -200,7 +201,8 @@ const AppSidebar = () => {
 
         {/* 2. Sessions Group */}
         <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
+            <Layers size={3} />
             Sessions
           </SidebarGroupLabel>
 
@@ -237,8 +239,8 @@ const AppSidebar = () => {
         <hr className="my-1 w-11/12 mx-auto" />
         {/* 3. Notes Group */}
         <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-            Notes
+          <SidebarGroupLabel className="flex items-center gap-1 group-data-[collapsible=icon]:hidden">
+            <NotebookText size={3} /> Notes
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
