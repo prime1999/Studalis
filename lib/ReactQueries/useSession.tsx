@@ -11,6 +11,16 @@ const getSession = async (sessionId: string) => {
   return res.json();
 };
 
+const getSessionByDocId = async (documentId: string) => {
+  const res = await fetch(`/api/sessions/${documentId}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch session");
+  }
+
+  return res.json();
+};
+
 const createSession = async ({
   documentId,
   title,
@@ -86,6 +96,14 @@ export function useSession(sessionId: string) {
     queryKey: ["session", sessionId],
     queryFn: () => getSession(sessionId),
     enabled: !!sessionId,
+  });
+}
+
+export function useSessionByDocId(documentId: string) {
+  return useQuery({
+    queryKey: ["session", documentId],
+    queryFn: () => getSessionByDocId(documentId),
+    enabled: !!documentId,
   });
 }
 

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -17,15 +18,35 @@ export async function GET({
 
   const { documentId } = await params;
 
-  const sessions = await prisma.studySession.findMany({
+  const document = await prisma.document.findFirst({
     where: {
       userId,
-      documentId,
+      id: documentId,
     },
     orderBy: {
-      lastOpenedAt: "desc",
+      createdAt: "desc",
     },
   });
 
-  return NextResponse.json(sessions);
+  if (!document) {
+    return NextResponse.json(
+      { error: "Document not found, Please reupload document" },
+      { status: 400 },
+    );
+  }
+
+  const session = await getOrCreateSession({
+    userId,
+    documentId,
+    title: document.title,
+  });
+
+  if (!session) {
+    return NextResponse.json(
+      { error: "Session not created, Please try again" },
+      { status: 400 },
+    );
+  }
+
+  return NextResponse.json(session);
 }
