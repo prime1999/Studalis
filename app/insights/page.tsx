@@ -20,7 +20,7 @@ const page = async () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-5 border rounded-xl bg-white shadow-sm flex items-center gap-4">
+        <div className="p-5 border rounded-lg border flex items-center gap-4">
           <BookOpen className="w-8 h-8 text-blue-500" />
           <div>
             <p className="text-sm text-zinc-500 font-medium">Topics Tracked</p>
@@ -28,7 +28,7 @@ const page = async () => {
           </div>
         </div>
 
-        <div className="p-5 border rounded-xl bg-white shadow-sm flex items-center gap-4">
+        <div className="p-5 rounded-lg border flex items-center gap-4">
           <CheckCircle2 className="w-8 h-8 text-green-500" />
           <div>
             <p className="text-sm text-zinc-500 font-medium">Strong Topics</p>
@@ -36,7 +36,7 @@ const page = async () => {
           </div>
         </div>
 
-        <div className="p-5 border rounded-xl bg-white shadow-sm flex items-center gap-4">
+        <div className="p-5 rounded-lg border flex items-center gap-4">
           <AlertCircle className="w-8 h-8 text-amber-500" />
           <div>
             <p className="text-sm text-zinc-500 font-medium">Needs Review</p>
@@ -46,7 +46,7 @@ const page = async () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-6 border rounded-xl bg-white shadow-sm space-y-4">
+        <div className="p-6 rounded-lg border space-y-4">
           <div className="flex items-center gap-2 border-b pb-3">
             <AlertCircle className="w-5 h-5 text-amber-500" />
             <h2 className="text-lg font-semibold">Topics To Review</h2>
@@ -80,7 +80,7 @@ const page = async () => {
           )}
         </div>
 
-        <div className="p-6 border rounded-xl bg-white shadow-sm space-y-4">
+        <div className="p-6 rounded-lg border space-y-4">
           <div className="flex items-center gap-2 border-b pb-3">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             <h2 className="text-lg font-semibold">Strong Topics</h2>
@@ -113,7 +113,7 @@ const page = async () => {
         </div>
       </div>
 
-      <div className="p-6 border rounded-xl bg-white shadow-sm space-y-4">
+      <div className="p-6 rounded-lg border space-y-4">
         <div className="flex items-center gap-2 border-b pb-3">
           <Flame className="w-5 h-5 text-orange-500" />
           <h2 className="text-lg font-semibold">Most Interacted Topics</h2>

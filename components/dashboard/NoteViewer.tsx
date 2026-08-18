@@ -12,12 +12,8 @@ interface NoteViewerProps {
 }
 
 export default function NoteViewer({ note }: NoteViewerProps) {
-  //   const [numPages, setNumPages] = useState<number>(0);
-  //   const [pageNumber, setPageNumber] = useState(1);
-  //   const [scale, setScale] = useState(1.0);
-
   return (
-    <article className="w-1/2 mx-auto prose max-w-none">
+    <article className="w-1/2 mx-auto text-sm prose max-w-none">
       <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
         {note}
       </ReactMarkdown>
