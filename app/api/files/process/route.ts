@@ -7,12 +7,6 @@ import { prisma } from "@/lib/prisma";
 import { chunkText } from "@/lib/chunk-text";
 import { createEmbedding } from "@/lib/embeddings";
 import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
-import DOMMatrix from "dommatrix";
-
-// Polyfill DOMMatrix globally for Node.js
-if (typeof globalThis.DOMMatrix === "undefined") {
-  (globalThis as any).DOMMatrix = DOMMatrix;
-}
 
 export const runtime = "nodejs";
 

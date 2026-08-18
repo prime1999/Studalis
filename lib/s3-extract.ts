@@ -1,7 +1,12 @@
+import DOMMatrix from "dommatrix";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import path from "path";
 import { pathToFileURL } from "url";
-import "./pdf-polyfill";
+
+// Polyfill DOMMatrix globally for Node.js
+if (typeof globalThis.DOMMatrix === "undefined") {
+  (globalThis as any).DOMMatrix = DOMMatrix;
+}
 
 // Point GlobalWorkerOptions directly to the node_modules worker file
 const workerPath = path.resolve(
