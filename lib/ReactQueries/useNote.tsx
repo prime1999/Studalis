@@ -11,6 +11,15 @@ const getNote = async (noteId: string) => {
 
   return res.json();
 };
+const getAllUserNotes = async () => {
+  const res = await fetch(`/api/sessions/note`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch note");
+  }
+
+  return res.json();
+};
 
 //-------------------------------- HOOKS -------------------------//
 export function useNote(noteId: string) {
@@ -18,5 +27,11 @@ export function useNote(noteId: string) {
     queryKey: ["note", noteId],
     queryFn: () => getNote(noteId),
     enabled: !!noteId,
+  });
+}
+export function useAllUserNotes() {
+  return useQuery({
+    queryKey: ["allUserNotes"],
+    queryFn: () => getAllUserNotes(),
   });
 }

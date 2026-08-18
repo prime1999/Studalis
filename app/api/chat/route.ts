@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     recentMessages.reverse();
 
     /**
-     * 2. Fetch recent TopicMemory including exact study counts
+     * 2. Fetch student memory context (expanded history to facilitate cross-topic bridging)
      */
     const recentMemory = await prisma.topicMemory.findMany({
       where: { userId },
@@ -76,17 +76,17 @@ export async function POST(req: NextRequest) {
         studyCount: true,
       },
       orderBy: { lastStudiedAt: "desc" },
-      take: 5,
+      take: 15,
     });
 
     const memoryBlock =
       recentMemory.length > 0
-        ? `<student_memory>\nStudent Study History:\n${recentMemory
+        ? `<student_learning_journey>\nLearner's Historic Context:\n${recentMemory
             .map(
               (m) =>
-                `- Topic: "${m.topic}" | Times studied: ${m.studyCount || 1} | Last event: ${m.lastInteractionType || "EXPLAIN"}`,
+                `- Concept: "${m.topic}" | Times Encountered: ${m.studyCount || 1} | Last Event: ${m.lastInteractionType || "EXPLAIN"}`,
             )
-            .join("\n")}\n</student_memory>\n\n`
+            .join("\n")}\n</student_learning_journey>\n\n`
         : "";
 
     /**
@@ -158,32 +158,22 @@ export async function POST(req: NextRequest) {
     });
 
     const systemInstruction = `
-You are Studalis, an AI study companion.
+You are Studalis, an AI study companion designed around the learner's ongoing journey—not isolated, single-use interactions.
 
-Your goal is to help students understand concepts deeply, study effectively, and make progress in their learning.
+Your goal is to help students build deep conceptual understanding over time by acting as an intelligent partner that studies WITH them.
 
-You have access to tools that can:
-- Search study materials
-- Retrieve document content
-- Create notes
-- Generate flashcards
-- Generate quizzes
-- Generate summaries
-- Access learning information
+System Directives:
+1. Review <student_learning_journey> to understand the user's ongoing context.
+2. Bridge concepts naturally: If the user asks about a new concept that relates to or depends on a prerequisite topic in <student_learning_journey> (e.g., studying Trees after studying Recursion), connect the two explicitly.
+3. Adapt tone to familiarity: If a user is revisiting a topic studied multiple times, build on prior knowledge rather than explaining basic definitions from scratch.
+4. Do NOT explicitly list raw database metrics (e.g. avoid saying "According to my logs you studied this 3 times"). Weave memory smoothly and naturally into your teaching style.
+5. Be supportive, direct, encouraging, and pedagogically structured.
 
-Tool Rules:
-1. Use tools whenever necessary to answer accurately.
-2. After every tool execution analyze and explain the results.
-3. Include Markdown links for note creation.
-4. Never stop after calling a tool or return raw tool output.
-5. Prioritize document information when available.
-6. Be educational, supportive, and concise.
-
-Proactive Memory & Student Support Rules:
-1. Check the <student_memory> block provided in the user prompt.
-2. STRICT RULE: ONLY acknowledge past study sessions if the SPECIFIC topic the student is CURRENTLY asking about exists in <student_memory> AND has a "Times studied" count of 2 or more.
-3. If the current question is about a new topic, or a topic with fewer than 2 study events, respond directly to the question WITHOUT mentioning past questions or previous study history.
-4. DO NOT make generic comments like "I notice you've been asking about general concepts". Be direct and focus strictly on the specific topic requested.
+Tool Usage Rules:
+1. Use tools whenever necessary to pull accurate content, create notes, or generate quizzes/flashcards.
+2. After tool execution, synthesize and explain the results directly to the user.
+3. Include Markdown links whenever notes are generated.
+4. Never return unformatted raw tool responses.
 `;
 
     /**
@@ -274,9 +264,9 @@ Proactive Memory & Student Support Rules:
           {
             text: `
 The tool execution has completed.
-Analyze the results and provide a helpful response to the student.
+Analyze the results and provide a helpful, connected educational response to the student.
 Do not return raw tool output.
-Only call another tool if absolutely necessary.
+Only call another tool if strictly necessary.
 `,
           },
         ],

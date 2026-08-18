@@ -44,6 +44,7 @@ import {
 import { useAllUserDocuments } from "@/lib/ReactQueries/getDocument";
 import { useNoteStore } from "@/store/note-store";
 import { useDocumentStore } from "@/store/document-store";
+import { useAllUserNotes } from "@/lib/ReactQueries/useNote";
 
 // Define interfaces for dynamic data
 interface DocumentItem {
@@ -92,9 +93,7 @@ const AppSidebar = () => {
   const { isSignedIn, user } = useUser();
   const { data: documents } = useAllUserDocuments();
   const { data: sessions, isPending } = useSessions();
-  const { data: notes, isPending: loadingNotes } = useNotes(
-    useDocumentStore((state) => state.documentId) || "",
-  );
+  const { data: notes, isPending: loadingNotes } = useAllUserNotes();
 
   const { setSessionId } = useSessionStore();
   const { setNoteId } = useNoteStore();

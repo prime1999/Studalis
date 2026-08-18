@@ -17,6 +17,7 @@
     "@google/genai": "^2.15.0",
     "@kinde-oss/kinde-auth-nextjs": "^2.13.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@napi-rs/canvas": "^1.0.7",
     "@next/env": "^16.3.0",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
