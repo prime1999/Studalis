@@ -1,5 +1,5 @@
 export async function extractPdfText(buffer: Buffer) {
-  // 1. Polyfill DOMMatrix inside the function call
+  // 1. Polyfill DOMMatrix
   if (typeof globalThis.DOMMatrix === "undefined") {
     const domMatrixModule = await import("dommatrix");
     const DOMMatrixCtor = domMatrixModule.default || domMatrixModule;
@@ -8,8 +8,11 @@ export async function extractPdfText(buffer: Buffer) {
     (globalThis as any).DOMMatrixReadOnly = DOMMatrixCtor;
   }
 
-  // 2. Dynamically load pdfjs after polyfill is established
+  // 2. Dynamically load pdfjs
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+  // 3. DISABLE WORKER THREADS FOR NODE/SERVERLESS ENVIRONMENT
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "";
 
   const loadingTask = pdfjsLib.getDocument({
     data: new Uint8Array(buffer),
@@ -24,7 +27,6 @@ export async function extractPdfText(buffer: Buffer) {
     const page = await pdf.getPage(pageNum);
     const content = await page.getTextContent();
 
-    // Use space separator so words do not fuse together
     const text = content.items.map((item: any) => item.str || "").join(" ");
 
     const cleanedText = text
