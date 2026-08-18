@@ -1,5 +1,5 @@
 import { s3 } from "@/lib/s3";
-import { extractPdfText } from "@/lib/s3-extract";
+//import { extractPdfText } from "@/lib/s3-extract";
 import { getPdfBuffer } from "@/lib/get-pdf-buttfer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@clerk/nextjs/server";
@@ -24,7 +24,9 @@ export async function POST(req: Request) {
   // 1. Download PDF from S3
   const pdfBuffer = await getPdfBuffer(key);
 
-  // 2. Extract text
+  // Load PDF extraction code only when needed
+  const { extractPdfText } = await import("@/lib/s3-extract");
+
   const pdfText = await extractPdfText(pdfBuffer);
 
   if (!pdfText.pages || pdfText.pages.length === 0) {

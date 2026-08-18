@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     recentMessages.reverse();
 
     /**
-     * 2. Fetch student memory context (expanded history to facilitate cross-topic bridging)
+     * 2. Fetch student memory context & flag high-repetition topics
      */
     const recentMemory = await prisma.topicMemory.findMany({
       where: { userId },
@@ -82,10 +82,13 @@ export async function POST(req: NextRequest) {
     const memoryBlock =
       recentMemory.length > 0
         ? `<student_learning_journey>\nLearner's Historic Context:\n${recentMemory
-            .map(
-              (m) =>
-                `- Concept: "${m.topic}" | Times Encountered: ${m.studyCount || 1} | Last Event: ${m.lastInteractionType || "EXPLAIN"}`,
-            )
+            .map((m) => {
+              const count = m.studyCount || 1;
+              const isStruggling = count >= 3;
+              return `- Concept: "${m.topic}" | Times Encountered: ${count}${
+                isStruggling ? " [HIGH REPETITION / POTENTIAL STRUGGLE]" : ""
+              } | Last Event: ${m.lastInteractionType || "EXPLAIN"}`;
+            })
             .join("\n")}\n</student_learning_journey>\n\n`
         : "";
 
@@ -166,8 +169,14 @@ System Directives:
 1. Review <student_learning_journey> to understand the user's ongoing context.
 2. Bridge concepts naturally: If the user asks about a new concept that relates to or depends on a prerequisite topic in <student_learning_journey> (e.g., studying Trees after studying Recursion), connect the two explicitly.
 3. Adapt tone to familiarity: If a user is revisiting a topic studied multiple times, build on prior knowledge rather than explaining basic definitions from scratch.
-4. Do NOT explicitly list raw database metrics (e.g. avoid saying "According to my logs you studied this 3 times"). Weave memory smoothly and naturally into your teaching style.
+4. Do NOT explicitly list raw database metrics (e.g., avoid saying "According to my logs you studied this 3 times"). Weave memory smoothly into your teaching.
 5. Be supportive, direct, encouraging, and pedagogically structured.
+
+Proactive Support & Struggle Detection Rules:
+- DETECTING CONFUSION: Look for signs that the student is having trouble (e.g., asking about the same concept multiple times in recent messages, expressing confusion, or if the concept in <student_learning_journey> is marked as [HIGH REPETITION / POTENTIAL STRUGGLE]).
+- SUGGESTING NOTES: When confusion or repeated questions on a concept are detected, answer their question first, then proactively suggest creating a structured note for them.
+  Example tone: "Since we've covered [Topic] from a couple of angles today, would you like me to generate a summary note breaking down the key points so you can review it easily later?"
+- You may either ask them if they'd like a note created, or call the 'createNote' tool directly if it flows naturally in the conversation.
 
 Tool Usage Rules:
 1. Use tools whenever necessary to pull accurate content, create notes, or generate quizzes/flashcards.
