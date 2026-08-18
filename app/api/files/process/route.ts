@@ -1,5 +1,4 @@
 import { s3 } from "@/lib/s3";
-import * as domMatrixModule from "dommatrix";
 //import { extractPdfText } from "@/lib/s3-extract";
 import { getPdfBuffer } from "@/lib/get-pdf-buttfer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -8,22 +7,6 @@ import { prisma } from "@/lib/prisma";
 import { chunkText } from "@/lib/chunk-text";
 import { createEmbedding } from "@/lib/embeddings";
 import { getOrCreateSession } from "@/lib/sessions/get-or-create-session";
-
-const DOMMatrixCtor = (domMatrixModule as any).default ?? domMatrixModule;
-if (typeof globalThis.DOMMatrix === "undefined") {
-  Object.defineProperty(globalThis, "DOMMatrix", {
-    value: DOMMatrixCtor,
-    configurable: true,
-    writable: true,
-  });
-}
-if (typeof (globalThis as any).DOMMatrixReadOnly === "undefined") {
-  Object.defineProperty(globalThis, "DOMMatrixReadOnly", {
-    value: DOMMatrixCtor,
-    configurable: true,
-    writable: true,
-  });
-}
 
 export const runtime = "nodejs";
 
