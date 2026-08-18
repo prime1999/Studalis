@@ -2,8 +2,16 @@ if (typeof globalThis.DOMMatrix === "undefined") {
   const domMatrixModule = await import("dommatrix");
   const DOMMatrixCtor = (domMatrixModule as any).default ?? domMatrixModule;
 
-  (globalThis as any).DOMMatrix = DOMMatrixCtor;
-  (globalThis as any).DOMMatrixReadOnly = DOMMatrixCtor;
+  Object.defineProperty(globalThis, "DOMMatrix", {
+    value: DOMMatrixCtor,
+    configurable: true,
+    writable: true,
+  });
+  Object.defineProperty(globalThis, "DOMMatrixReadOnly", {
+    value: DOMMatrixCtor,
+    configurable: true,
+    writable: true,
+  });
 }
 
 export async function extractPdfText(buffer: Buffer) {
