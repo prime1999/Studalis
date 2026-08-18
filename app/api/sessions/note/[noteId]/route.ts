@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: Promise<{ documentId: string }> },
+  { params }: { params: Promise<{ noteId: string }> },
 ) {
   try {
     const { userId } = await auth();
@@ -14,17 +14,19 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { documentId } = await params;
+    const { noteId } = await params;
 
     const notes = await prisma.note.findMany({
       where: {
         userId,
-        documentId,
+        id: noteId,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
+
+    console.log({ notes });
 
     return NextResponse.json({
       notes,

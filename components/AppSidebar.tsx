@@ -247,8 +247,7 @@ const AppSidebar = () => {
             <SidebarMenu>
               {/* Dynamic Mapped Sessions */}
               {notes?.notes?.map((note: any) => {
-                const isNoteActive =
-                  pathname === `/dashboard/sessions/${note.id}`;
+                const isNoteActive = pathname === `/dashboard/note/${note.id}`;
 
                 return (
                   <SidebarMenuItem key={note.id}>
@@ -258,7 +257,7 @@ const AppSidebar = () => {
                       onClick={() => setNoteId(note.id)}
                     >
                       <Link
-                        href={`/dashboard/sessions/${note.id}`}
+                        href={`/dashboard/note/${note.id}`}
                         className="flex items-center gap-2 text-xs"
                       >
                         <MessageSquare className="h-4 w-4 shrink-0" />
