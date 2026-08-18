@@ -1,3 +1,11 @@
+if (typeof globalThis.DOMMatrix === "undefined") {
+  const domMatrixModule = await import("dommatrix");
+  const DOMMatrixCtor = (domMatrixModule as any).default ?? domMatrixModule;
+
+  (globalThis as any).DOMMatrix = DOMMatrixCtor;
+  (globalThis as any).DOMMatrixReadOnly = DOMMatrixCtor;
+}
+
 export async function extractPdfText(buffer: Buffer) {
   const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
